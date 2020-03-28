@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>planner.qml</file>
+        <file>inflight.qml</file>
+        <file>daq.qml</file>
+        <file>missiondialog.qml</file>
+        <file>StatusBar.qml</file>
+        <file>Waypointparam.qml</file>
+    </qresource>
+</RCC>
