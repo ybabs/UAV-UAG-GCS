@@ -46,9 +46,9 @@ find_package(Qt5Location REQUIRED)
 
 add_message_files(
   FILES
-  waypoint.msg
-  missionparameters.msg
-  action.msg
+  Waypoint.msg
+  Missionparameters.msg
+  Action.msg
 
 )
 
