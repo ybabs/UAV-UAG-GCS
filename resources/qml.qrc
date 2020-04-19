@@ -2,9 +2,13 @@
     <qresource prefix="/">
         <file>planner.qml</file>
         <file>inflight.qml</file>
-        <file>daq.qml</file>
         <file>missiondialog.qml</file>
         <file>StatusBar.qml</file>
         <file>Waypointparam.qml</file>
+        <file>GreenBox.qml</file>
+        <file>marker-red.png</file>
+         <file>drone.png</file>
+        <file>Box.qml</file>
+        <file>Line.qml</file>
     </qresource>
 </RCC>

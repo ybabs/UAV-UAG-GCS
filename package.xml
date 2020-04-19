@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>qml_gui</name>
+  <name>gcs</name>
   <version>0.0.0</version>
-  <description>The qml_gui package</description>
+  <description>The gcs package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

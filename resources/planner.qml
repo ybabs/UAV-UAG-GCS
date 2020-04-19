@@ -6,24 +6,23 @@ import QtLocation 5.14
 import QtPositioning 5.14
 
 
-Window{
-    id:appWindow
-    width:1280
-    height:720
-    visible:true
-
+Window {
+    visible: true
+    width: 1280
+    height: 720
+    title: qsTr("Map Planner")
     property MapCircle point
-    property MapCircle uav // make this a vector of points.
+    property MapQuickItem marker
     property bool isPlay : true
     property string playColor: "green"
     property string pauseColor: "red"
     property string pauseText: "Pause"
     property string playText: "Play"
 
-    Plugin {
-        id:mapPlugin
-        name: "osm"
 
+    Plugin {
+        id: mapPlugin
+        name: "mapboxgl"
     }
 
     MouseArea{
@@ -31,15 +30,6 @@ Window{
         focus:true
         hoverEnabled:false
         acceptedButtons: Qt.LeftButton
-
-        // onPressAndHold: {
-                   
-
-        // }
-        onClicked:{
-
-        }
-
     }
 
     Map{
@@ -47,7 +37,54 @@ Window{
         anchors.fill:parent
         plugin: mapPlugin
         center: QtPositioning.coordinate(52.75591, -1.246310)
-        zoomLevel:50
+        zoomLevel:40
+        copyrightsVisible: false
+        tilt: 45
+
+
+        PluginParameter {
+                name: "mapboxgl.mapping.cache.memory"
+                value: true
+        }
+
+        MapItemView{
+            model: planner.uavModel
+            delegate: MapQuickItem{ // Change to MapQuickItem
+                coordinate:model.position
+                sourceItem: Image{
+                    id:uavImage
+                    opacity: .75
+                    sourceSize.width:32
+                    sourceSize.height:32
+                    source: "qrc:///drone.png"
+                }
+            anchorPoint.x: uavImage.width/4
+            anchorPoint.y: uavImage.height/4
+            }
+        }
+
+        Line{
+            id: uavPath
+        }
+
+        MapItemView{
+            model: ListModel {
+                id: markerModel
+                dynamicRoles: true
+             }
+            delegate:MapQuickItem{
+                coordinate:model.position
+                sourceItem: Image{
+                    id:waypointMarker
+                    opacity: .75
+                    sourceSize.width:80
+                    sourceSize.height:80
+                    source: "qrc:///marker-red.png"
+                }
+            anchorPoint.x: waypointMarker.width/2
+            anchorPoint.y: waypointMarker.height/2
+            }
+        }
 
         MouseArea{
         anchors.fill:parent
@@ -55,26 +92,22 @@ Window{
         hoverEnabled:false
         acceptedButtons: Qt.LeftButton
 
-         onPressAndHold: {
-             point = Qt.createQmlObject('import QtLocation 5.9;\MapCircle {radius: 5; color: "red"; opacity: 0.5; border.width: 0.5}', map)
-             point.center = map.toCoordinate(Qt.point(mouse.x, mouse.y))
-             map.addMapItem(point)
-             console.log(point.center.latitude)
-             missionPopup.open()
-            
-                   
+            onPressAndHold: {
+                   var pos = map.toCoordinate(Qt.point(mouse.x,mouse.y));
+                   //var markerId = markerModel.count + 1;
+                   markerModel.append({"position":pos})
+                   uavPath.addCoordinate(pos)
 
-         }
-        onClicked:{
-
+               // missionPopup.open()   
+            }
+                
         }
+                    
+   }
 
-    }
-       
-    }
-
-    StatusBar {
-        id:statsRect
+    
+    StatusBar{
+        id:statBar
     }
 
     Waypointparam{
@@ -169,21 +202,6 @@ Window{
         onClicked: planner.goHome()
     }
 
-    function setButtonColor()
-    {
-        var buttonState = playColor
-        if(isPlay == true)
-        {
-            buttonState = playColor
-        }
-
-        else
-        {
-            buttonState = pauseColor
-        }
-
-        return buttonState
-    }
 
     function setButtonText()
     {
@@ -225,121 +243,7 @@ Window{
         }
         
     }
-    
-    Slider{
-        id:speedSlider
-        width:parent.width/6
-        from:0
-        to:15
-        value:0
-        stepSize:1
-        enabled:true
-        onValueChanged:
-        {
-            planner.getDroneSpeed = speedSlider.value
-            speedText.text =  planner.getDroneSpeed
-        }
-    }
-
-    Label {
-        id: speedLabel
-        text: qsTr("Speed: ") 
-        horizontalAlignment: horizontalAlignment.CENTER
-        //verticalAlignment: verticalAlignment.CENTER
-        font.bold:false
-        color:"steelblue"
-        font.pixelSize: 20
-        anchors{
-            top:speedSlider.bottom
-            left: parent.left
-            topMargin:3
-            leftMargin:8
-        }
-    }
 
 
-
-    Text{
-        id:speedText
-        text: "0"
-        color:"steelblue"
-        font.bold:false
-        font.pixelSize: 20
-        anchors
-        {
-            top: speedSlider.bottom
-            left: speedLabel.right
-            topMargin:3
-        }
-
-    }
-
-    Label{
-        id:speedUinitLabel
-        text:"m/s"
-        color:"steelblue"
-        font.bold:false
-        font.pixelSize: 20
-        anchors
-        {
-            top: speedSlider.bottom
-            left: speedText.right
-             topMargin:3
-             leftMargin:1
-        }
-
-    }
-
-    ColumnLayout {
-        id:missionConfigLayout
-        anchors
-            {
-                top: pauseButton.bottom
-                right:parent.right
-                topMargin: 10
-                rightMargin:5
-
-            }
-
-        Label{
-            id:missionEndLabel
-            text: "Mission End "
-            
-        }
-
-        RadioButton {
-                id:noActionRadioButton
-                checked: false
-                 text: qsTr("Hover") 
-                 onClicked:
-                 {
-                     planner.getHoverFlag = 1
-                     planner.getRthFlag = 0
-                     planner.getLandFlag = 0
-                 }
-            }
-        RadioButton {
-                id:rthRadioButton
-                text: qsTr("RTH") 
-                onClicked:
-                 {
-                     planner.getHoverFlag = 0
-                     planner.getRthFlag = 1
-                     planner.getLandFlag = 0
-                 }
-            }
-        RadioButton {
-                id: landRadioButton
-                text: qsTr("Land") 
-                onClicked:
-                 {
-                     planner.getHoverFlag = 0
-                     planner.getRthFlag = 0
-                     planner.getLandFlag = 1
-                 }
-            }
-    }
 
 }
-
-//QML145
