@@ -38,7 +38,11 @@ public Q_SLOTS: // slots
 private:
     QStandardItemModel* m_uavModel;
     int connected_clients;
+    std::vector<QGeoCoordinate> uav_positions;
+    std::vector<double> batteries;
     QGeoCoordinate uav_position;
+
+    
     double battery_capacity;
     ros::Subscriber uav_battery_subscriber;
     ros::Subscriber uav_gps_subscriber;

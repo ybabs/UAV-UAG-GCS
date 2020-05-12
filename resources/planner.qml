@@ -4,9 +4,11 @@ import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import QtLocation 5.14
 import QtPositioning 5.14
+import QtGraphicalEffects 1.14
 
 
-Window {
+
+ApplicationWindow {
     visible: true
     width: 1280
     height: 720
@@ -19,6 +21,25 @@ Window {
     property string pauseText: "Pause"
     property string playText: "Play"
 
+    function setButtonText()
+    {
+        var buttonText = pauseText
+
+        if(isPlay == true)
+        {
+            buttonText = playText
+        }
+
+        else
+        {
+            buttonText = pauseText
+        }
+
+        return buttonText
+
+    }
+
+
 
     Plugin {
         id: mapPlugin
@@ -30,6 +51,83 @@ Window {
         focus:true
         hoverEnabled:false
         acceptedButtons: Qt.LeftButton
+    }
+
+
+    header: ToolBar{
+        RowLayout{
+            anchors.fill:parent
+        }
+        background: Rectangle {
+            color: "transparent"
+        }
+
+        ComboBox {
+            id: toolbarComboBox
+            Layout.minimumWidth:200
+            currentIndex: 0
+        }
+
+        Button{
+            id:takeoffButton
+             anchors{
+                left: toolbarComboBox.right
+                leftMargin:5
+             }
+            highlighted:true
+            text: "Takeoff"
+            onClicked: planner.takeoff()
+        }
+
+        Button{
+            id:landButton
+            anchors{
+                left: takeoffButton.right
+                leftMargin:5
+            }
+            text: "Land"
+            highlighted:true
+            onClicked: planner.land()
+        
+         }
+
+        Button{
+            id:rthButton
+            anchors{
+                left: landButton.right
+                leftMargin:5
+            }
+            text: "RTH"
+            highlighted:true
+            onClicked: planner.goHome()
+        }
+
+        Button{
+            id:pauseButton
+            anchors{
+                left:rthButton.right
+                leftMargin:5
+            }   
+            highlighted:true     
+             text: setButtonText() 
+            onClicked:{
+                    isPlay = !isPlay
+                    planner.getPlayPause = isPlay          
+            }
+        
+        }
+
+        StatusBar{
+            id:statBar
+            anchors{
+                left:pauseButton.right
+                leftMargin:5
+            }   
+        }
+
+
+
+
     }
 
     Map{
@@ -61,6 +159,8 @@ Window {
             anchorPoint.x: uavImage.width/4
             anchorPoint.y: uavImage.height/4
             }
+
+           
         }
 
         Line{
@@ -106,9 +206,7 @@ Window {
    }
 
     
-    StatusBar{
-        id:statBar
-    }
+   
 
     Waypointparam{
         id: missionPopup
@@ -154,96 +252,13 @@ Window {
 
         onClicked:
         {
-            planner.startMission()
+             
+          //  planner.startMission()
             console.log("start clicked")
+            
         }
     
     }
-
-    Button{
-        id:takeoffButton
-        anchors{
-            top: parent.top
-            right: parent.right
-            topMargin:5
-            rightMargin:5
-        }
-        highlighted:true
-        text: "Takeoff"
-        
-        onClicked: planner.takeoff()
-    }
-
-    Button{
-        id:landButton
-        anchors{
-            top: takeoffButton.bottom
-            right: parent.right
-            topMargin:5
-            rightMargin:5
-        }
-        text: "Land"
-        highlighted:true
-
-        onClicked: planner.land()
-        
-    }
-
-    Button{
-        id:rthButton
-        anchors{
-            top: landButton.bottom
-            right: parent.right
-            topMargin:5
-            rightMargin:5
-        }
-        text: "RTH"
-        highlighted:true
-        onClicked: planner.goHome()
-    }
-
-
-    function setButtonText()
-    {
-        var buttonText = pauseText
-
-        if(isPlay == true)
-        {
-            buttonText = playText
-        }
-
-        else
-        {
-            buttonText = pauseText
-        }
-
-        return buttonText
-
-    }
-
-    Button{
-        id:pauseButton
-       
-        anchors{
-            top:rthButton.bottom
-            right:parent.right
-            topMargin:5
-            rightMargin:5
-        }
-        
-  
-        highlighted:true     
-
-        text: setButtonText()
-        
-        onClicked:{
-                 isPlay = !isPlay
-                 planner.getPlayPause = isPlay
-                
-        }
-        
-    }
-
 
 
 }

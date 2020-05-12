@@ -2,8 +2,8 @@ import QtQuick 2.14
 
 Rectangle {
     id: root
-    width: 64
-    height: 64
+    width: 40
+    height: 40
     color: "#ffffff"
     border.color: Qt.darker(color, 1.2)
     property alias text: label.text
@@ -11,7 +11,7 @@ Rectangle {
     Text {
         id: label
         anchors.centerIn: parent
-        font.pixelSize: 14
+        font.pixelSize: 5
         color: root.fontColor
     }
 }

@@ -4,7 +4,8 @@
 
 UavModel::UavModel(QObject *parent):
           QObject(parent),
-          m_uavModel(new QStandardItemModel(this))
+          m_uavModel(new QStandardItemModel(this)),
+          uav_positions(4, uav_position)
 {
     connected_clients = 4;
      QHash<int, QByteArray> roles;
@@ -17,6 +18,9 @@ UavModel::UavModel(QObject *parent):
         item->setData(QVariant::fromValue(battery_capacity), BatteryRole);
         m_uavModel->appendRow(item);
     }
+
+    
+    batteries.reserve(4);
 
 }
 
@@ -48,20 +52,50 @@ void UavModel::updateModelData()
     std::normal_distribution<> dist(-0.001, +0.001);
      std::normal_distribution<> val(-4.5, +10.5);
 
-    connected_clients = 3; // get this data from the number of Uavs connected to the network
+    connected_clients = 4; // get this data from the number of Uavs connected to the network
+    batteries[0]= 50.2;
+    batteries[1] = 54.6;
+    batteries[2] = 30;
+    batteries[3] = 50;
 
-    if(QStandardItem *item = m_uavModel->item(0))
+    QGeoCoordinate uav_pos1;
+    QGeoCoordinate uav_pos2;
+    QGeoCoordinate uav_pos3;
+    QGeoCoordinate uav_pos4;
+
+    uav_pos1.setLatitude(52.75591 );
+    uav_pos1.setLongitude(-1.246310 );
+    uav_pos1.setAltitude(5);
+    
+    uav_pos2.setLatitude(52.755964 );
+    uav_pos2.setLongitude( -1.246648 );
+    uav_pos2.setAltitude(5);
+
+    uav_pos3.setLatitude(52.756151 );
+    uav_pos3.setLongitude(-1.248142 );
+    uav_pos3.setAltitude(5);
+        
+    uav_pos4.setLatitude(52.755872 );
+    uav_pos4.setLongitude(-1.246683 );
+    uav_pos4.setAltitude(5);
+
+    uav_positions[0] = uav_pos1;
+    uav_positions[1] = uav_pos2;
+    uav_positions[2] = uav_pos3;
+    uav_positions[3] = uav_pos4;
+
+     
+    for(int i = 0; i < connected_clients; i++)
     {
-        //QGeoCoordinate uav_pos;
-        // uav_position.setLatitude(52.75591 + dist(rng));
-        // uav_position.setLongitude(-1.246310 + dist(rng));
-        uav_position.setLatitude(52.75591 );
-        uav_position.setLongitude(-1.246310 );
-        uav_position.setAltitude(5);
-        battery_capacity = 45.85 ;
-        item->setData(QVariant::fromValue(uav_position), PositionRole);
-        item->setData(QVariant::fromValue(battery_capacity), BatteryRole);
-    }
+        if(QStandardItem *item = m_uavModel->item(i))
+        {
+            item->setData(QVariant::fromValue(uav_positions[i]), PositionRole);
+            item->setData(QVariant::fromValue(batteries[i]), BatteryRole);
+        }
+
+       
+
+     }
 }
 
 QHash<int, QByteArray> UavModel::roleNames() const

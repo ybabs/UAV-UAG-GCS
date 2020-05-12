@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/x86_64-linux-gnu/qt5/QtGui",
+                "/usr/include/x86_64-linux-gnu/qt5",
+                "/usr/include/x86_64-linux-gnu/qt5/QtQml",
+                "/opt/ros/melodic",
+                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                "/opt/ros/melodic/include",
+                "/home/pc/Qt/5.14.2/gcc_64/include/QtPositioning",
+                "/home/pc/Qt/5.14.2/gcc_64/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
