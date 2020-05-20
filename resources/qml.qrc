@@ -5,6 +5,7 @@
         <file>missiondialog.qml</file>
         <file>StatusBar.qml</file>
         <file>Waypointparam.qml</file>
+        <file>WaypointInput.qml</file>
         <file>GreenBox.qml</file>
         <file>marker-red.png</file>
          <file>drone.png</file>

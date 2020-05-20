@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QAbstractListModel>
 #include <QStandardItemModel>
+#include "QString"
 #include <ros/ros.h>
 #include <sensor_msgs/BatteryState.h>
 #include <sensor_msgs/NavSatFix.h>
@@ -22,8 +23,10 @@ class UavModel : public QObject
 
 public:
     enum {
+        NameRole,
         PositionRole = Qt::UserRole + 1,
-        BatteryRole 
+        BatteryRole
+        
     };
     UavModel(QObject *parent = nullptr);
     QObject *uavModel() const;
@@ -37,13 +40,11 @@ public Q_SLOTS: // slots
     void updateModelData();
 private:
     QStandardItemModel* m_uavModel;
+    int uav_id;
     int connected_clients;
+    double battery_capacity;
     std::vector<QGeoCoordinate> uav_positions;
     std::vector<double> batteries;
-    QGeoCoordinate uav_position;
-
-    
-    double battery_capacity;
     ros::Subscriber uav_battery_subscriber;
     ros::Subscriber uav_gps_subscriber;
 

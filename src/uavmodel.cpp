@@ -2,25 +2,26 @@
 #include <random>
 
 
+
 UavModel::UavModel(QObject *parent):
           QObject(parent),
           m_uavModel(new QStandardItemModel(this)),
-          uav_positions(4, uav_position)
+          uav_positions(4, QGeoCoordinate()),
+          batteries(4,0),
+          uav_id(0)
 {
     connected_clients = 4;
-     QHash<int, QByteArray> roles;
-     roles = roleNames();
-     m_uavModel->setItemRoleNames(roles);
+    QHash<int, QByteArray> roles;
+    roles = roleNames();
+    m_uavModel->setItemRoleNames(roles);
     for(int i = 0; i < connected_clients; i++)
     {
         QStandardItem *item = new QStandardItem;
         item->setData(QVariant::fromValue(QGeoCoordinate()), PositionRole);
         item->setData(QVariant::fromValue(battery_capacity), BatteryRole);
+        item->setData(QVariant::fromValue(5), NameRole);
         m_uavModel->appendRow(item);
     }
-
-    
-    batteries.reserve(4);
 
 }
 
@@ -40,19 +41,12 @@ void UavModel::batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& m
 void UavModel::gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
  
-  uav_position.setLatitude(msg->latitude) ;
-  uav_position.setLongitude( msg->longitude);
-  uav_position.setAltitude(msg->altitude);
+
 }
 
 void UavModel::updateModelData()
 {
-    std::mt19937 rng;
-    rng.seed(std::random_device()());
-    std::normal_distribution<> dist(-0.001, +0.001);
-     std::normal_distribution<> val(-4.5, +10.5);
-
-    connected_clients = 4; // get this data from the number of Uavs connected to the network
+   // connected_clients = 4; // get this data from the number of Uavs connected to the network
     batteries[0]= 50.2;
     batteries[1] = 54.6;
     batteries[2] = 30;
@@ -67,8 +61,8 @@ void UavModel::updateModelData()
     uav_pos1.setLongitude(-1.246310 );
     uav_pos1.setAltitude(5);
     
-    uav_pos2.setLatitude(52.755964 );
-    uav_pos2.setLongitude( -1.246648 );
+    uav_pos2.setLatitude(52.755934);
+    uav_pos2.setLongitude(-1.247107);
     uav_pos2.setAltitude(5);
 
     uav_pos3.setLatitude(52.756151 );
@@ -84,16 +78,20 @@ void UavModel::updateModelData()
     uav_positions[2] = uav_pos3;
     uav_positions[3] = uav_pos4;
 
+    
      
     for(int i = 0; i < connected_clients; i++)
     {
+        QString uav_Text = "MAV " + QString::number(i + 1);
+        
         if(QStandardItem *item = m_uavModel->item(i))
         {
+            
             item->setData(QVariant::fromValue(uav_positions[i]), PositionRole);
             item->setData(QVariant::fromValue(batteries[i]), BatteryRole);
-        }
-
-       
+            item->setData(QVariant::fromValue(uav_Text), NameRole);
+            
+        }      
 
      }
 }
@@ -103,6 +101,7 @@ QHash<int, QByteArray> UavModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[PositionRole] = "position";
     roles[BatteryRole] = "battery";
+    roles[NameRole] = "identifier";
 
     return roles;
 
