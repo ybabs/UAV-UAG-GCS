@@ -1,8 +1,10 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QtQuick/QQuickItem>
 #include <QTimer>
-#include "qml_gui/model/uavmodel.h"
+#include "gcs/planner/planner.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -12,10 +14,10 @@ int main(int argc, char* argv[])
      
      QQmlApplicationEngine engine;
      QQmlContext* context = engine.rootContext();
-     UavModel model;
+     GCS gcs;
 
-     context->setContextProperty("planner", &model);
-     const QUrl url(QStringLiteral("qrc:/planner.qml"));
+     context->setContextProperty("planner", &gcs);
+     const QUrl url(QStringLiteral("qrc:/main.qml"));
      QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) 
     {
@@ -24,10 +26,11 @@ int main(int argc, char* argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-    QTimer timer;
-    timer.setInterval(20);
-    QObject::connect(&timer, &QTimer::timeout, &model, &UavModel::updateModelData);
-    timer.start();
+    QObject *item = engine.rootObjects().first();
+    Q_ASSERT(item);
+    QMetaObject::invokeMethod(item, "initializeProviders",
+                                Qt::QueuedConnection);
+
 
     return app.exec();
 }

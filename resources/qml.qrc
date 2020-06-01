@@ -1,15 +1,19 @@
 <RCC>
     <qresource prefix="/">
-        <file>planner.qml</file>
-        <file>inflight.qml</file>
-        <file>missiondialog.qml</file>
-        <file>StatusBar.qml</file>
-        <file>Waypointparam.qml</file>
-        <file>WaypointInput.qml</file>
-        <file>GreenBox.qml</file>
-        <file>marker-red.png</file>
-         <file>drone.png</file>
-        <file>Box.qml</file>
-        <file>Line.qml</file>
+        <file>main.qml</file>
+        <file>images/drone.png</file>
+        <file>images/marker.png</file>
+        <file>images/scale.png</file>
+        <file>images/scale_end.png</file>
+        <file>images/search.png</file>
+        <file>items/MapComponent.qml</file>
+        <file>items/SearchBar.qml</file>
+        <file>utils/formatDist.js</file>
+        <file>items/ControlComponent.qml</file>
+        <file>items/MavComponent.qml</file>
+        <file>items/ButtonComponent.qml</file>
+        <file>items/MissionConfigComponent.qml</file>
+        <file>items/Line.qml</file>
+        <file>items/WaypointParamComponent.qml</file>
     </qresource>
 </RCC>

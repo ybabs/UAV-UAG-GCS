@@ -1,4 +1,4 @@
-#include "qml_gui/model/uavmodel.h"
+#include "gcs/model/uavmodel.h"
 #include <random>
 
 

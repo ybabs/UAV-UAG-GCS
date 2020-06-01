@@ -11,7 +11,9 @@
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore",
                 "/opt/ros/melodic/include",
                 "/home/pc/Qt/5.14.2/gcc_64/include/QtPositioning",
-                "/home/pc/Qt/5.14.2/gcc_64/include"
+                "/home/pc/Qt/5.14.2/gcc_64/include",
+                "~/catkin_ws/devel/include",
+                "/usr/include/eigen3"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
