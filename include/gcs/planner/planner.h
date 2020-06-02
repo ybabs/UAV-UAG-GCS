@@ -2,6 +2,7 @@
 #define PLANNER_H
 
 #include <QObject>
+#include <QString>
 #include <QTimer>
 #include <serial/serial.h>
 #include <cmath>
@@ -12,6 +13,7 @@
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/String.h>
 #include <tf/tf.h>
 #include <sensor_msgs/Joy.h>
 #include "gcs/Waypoint.h"
@@ -24,6 +26,8 @@
 #include <QDebug>
 #include "gcs/model/uavmodel.h"
 #include "gcs/planner/waypointgenerator.h"
+#include <sstream>
+#include <iostream>
 
 
 
@@ -40,6 +44,7 @@ class GCS: public QObject
     Q_PROPERTY(float getSamplingTime READ getSamplingTime WRITE setSamplingTime NOTIFY samplingTimeSet)
     Q_PROPERTY(int getSamplingFlag READ getSamplingFlag WRITE setSamplingFlag NOTIFY samplingFlagSet )
     Q_PROPERTY(int getPlayPause READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
+    Q_PROPERTY(QVariantList trackpoints READ getPointVector)
     
 
    
@@ -80,6 +85,8 @@ class GCS: public QObject
     bool getPlayPause();
     void initPublishers();
     void setMissionParams();
+    QVariantList getPointVector();
+    sensor_msgs::NavSatFix convertTextToNavSatFix(std::string input_string);
 
     signals:
         void speedSliderChanged();
@@ -98,7 +105,7 @@ class GCS: public QObject
      void startMission();
      void abortMission();
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
-     void addGeneratedWaypoints(sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end, int locations, double bearing);
+     void addGeneratedWaypoints(QString start, QString end, int num_locations);
     
 
 
@@ -124,6 +131,7 @@ class GCS: public QObject
     ros::Publisher drone_action_publisher;
 
     std::vector<gcs::Waypoint> transect_list;
+    QVector<QGeoCoordinate> qml_gps_points;
 
     UavModel model;
     GpsUtils gpsGenerator;

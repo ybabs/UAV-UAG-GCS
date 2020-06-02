@@ -5,6 +5,8 @@ GCS::GCS()
 {
 
   initPublishers();
+
+//   qml_gps_points << QGeoCoordinate(10, 10, 10);
     
 }
 
@@ -166,6 +168,17 @@ int GCS::getSamplingFlag()
   return sampling_flag;
 }
 
+QVariantList GCS::getPointVector()
+{
+    QVariantList l;
+    for (QGeoCoordinate &p : qml_gps_points)
+    {
+        l << QVariant::fromValue(p);
+    }
+
+    return l;
+}
+
 void GCS::setSamplingTime(float sample_time)
 {
 
@@ -240,8 +253,71 @@ bool GCS::getPlayPause()
    return mission_pause;
 }
 
-void GCS::addGeneratedWaypoints(sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end, int locations, double bearing)
+void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
 {
+    // Process incoming strings
+    sensor_msgs::NavSatFix start_pos;
+    sensor_msgs::NavSatFix end_pos;
+    std::vector<sensor_msgs::NavSatFix> uav_route;
+
+    start_pos = convertTextToNavSatFix(start.toStdString());
+    end_pos = convertTextToNavSatFix(end.toStdString());
+
+    double bearing = gpsGenerator.ComputeBearing(start_pos, end_pos);
+
+    // ROS_INFO("Start Pos Lat = %f", start_pos.latitude);
+    // ROS_INFO("End Pos Lon = %f ", end_pos.longitude);
+  
+
     gcs::Waypoint msg;
-    //route = gpsGenerator.returnPositionsBasedOnLocations()
+    uav_route = gpsGenerator.returnPositionsBasedOnLocations(num_locations, bearing, start_pos, end_pos);
+
+    QGeoCoordinate start_coord;
+    QGeoCoordinate end_coord;
+
+    start_coord.setLatitude(start_pos.latitude);
+    start_coord.setLongitude(start_pos.longitude);
+    end_coord.setLatitude(end_pos.latitude);
+    end_coord.setLongitude(end_pos.longitude);
+
+    qml_gps_points.append(start_coord);
+
+    for(int i = 0; i < uav_route.size(); i++)
+    {
+        QGeoCoordinate p_single ;
+
+        p_single.setLatitude(uav_route[i].latitude) ;
+        p_single.setLongitude(uav_route[i].longitude);
+
+        //ROS_INFO("Coordinates Lat: %f  Lon: %f", p_single.latitude(), p_single.longitude());
+
+        qml_gps_points.append(p_single);
+    }
+
+    qml_gps_points.append(end_coord);
+
+
 }
+
+
+ sensor_msgs::NavSatFix GCS::convertTextToNavSatFix(std::string input_string)
+ {
+     std::vector<double> result;
+     sensor_msgs::NavSatFix gps_output;
+
+     std::stringstream s_stream(input_string);
+
+         while(s_stream.good())
+    {
+        std::string substr;
+        std::getline(s_stream, substr, ',');
+        double value = std::stod(substr);
+        result.push_back(value);
+    }
+
+    gps_output.latitude = result[0];
+    gps_output.longitude = result[1];
+
+    return gps_output;
+
+ }

@@ -201,6 +201,7 @@ Map{
         }
     }
 
+
     Line{
         id: uavPath
     }

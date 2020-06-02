@@ -13,6 +13,10 @@ ApplicationWindow{
     property variant searchRegion: QtPositioning.circle(searchLocation)
     property variant searchRegionItem
 
+  ListModel{
+      id:waypointModel
+  }
+
 
     function createMap()
     {
@@ -72,6 +76,18 @@ ApplicationWindow{
             }
         }
 
+        onWaypointGenerated:{
+                for(var i = 0; i < waypoints.count; i++){
+                  waypointModel.append(waypoints.get(i))
+                  //console.log(waypoints.get(i).latitude)
+                }
+               
+            
+        }
+
+        
+        
+
         onShowMap: stackView.pop(page)
     }
 
@@ -96,23 +112,6 @@ ApplicationWindow{
                     limit = -1;
                     update();
                 }
-                // onStatusChanged: {
-                //     switch (status){
-
-                //     case placeSearchModel.Ready:
-                //         if(count > 0)
-                //         {
-                //             console.log("Coordinate ready");
-                //         }
-                //         else
-                //             console.log("Search Error");
-                //         break;
-                //     case placeSearchModel.Error:
-                //         console.log("Search Place error")
-                //         break;
-                //     }
-                // }
-
             }
 
             Component{
@@ -139,6 +138,22 @@ ApplicationWindow{
                             //coordinate: model.type === PlaceSearchModel.PlaceResult  ? place.location.coordinate : QtPositioning.coordinate()
                             //visible: model.type === PlaceSearchModel.PlaceResult
                             coordinate:place.location.coordinate
+                            anchorPoint.x: image.width * 0.28
+                            anchorPoint.y: image.height
+
+
+                            sourceItem: Image {
+                                id:image
+                                source: "../images/marker.png"
+                            }
+                        }
+
+                    }
+
+                    MapItemView{
+                        model:waypointModel
+                        delegate: MapQuickItem{
+                            coordinate: QtPositioning.coordinate(model.latitude, model.longitude)
                             anchorPoint.x: image.width * 0.28
                             anchorPoint.y: image.height
 

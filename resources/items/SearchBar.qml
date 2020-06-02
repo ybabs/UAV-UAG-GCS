@@ -14,7 +14,15 @@ ToolBar{
     signal startSearch(string searchCoord)
     signal searchTextChanged(string searchCoord)
     signal endSearchTextChanged(string searchCoord)
+    signal waypointGenerated(ListModel waypoints)
     signal showMap()
+
+    ListModel{
+        id: pointsList
+    }
+
+
+
 
     onSearchBarVisibleChanged: {
         searchBar.opacity = searchBarVisible ? 1: 0
@@ -136,6 +144,15 @@ ToolBar{
             id: generateWpButton
             text:"Generate"
             onClicked:{
+
+                planner.addGeneratedWaypoints(searchText.text, endSearchText.text, 5)
+                for(var i in planner.trackpoints){
+                    var p = planner.trackpoints[i];
+                   //console.log("lat: ", p.latitude, "lon: ", p.longitude, "elevation: ", p.altitude)
+                   pointsList.append(p)
+                }
+
+                waypointGenerated(pointsList)
 
             }
         }
