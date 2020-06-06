@@ -23,6 +23,8 @@ UavModel::UavModel(QObject *parent):
         m_uavModel->appendRow(item);
     }
 
+    ROS_INFO("Constructor UAV Model");
+
 }
 
 
@@ -78,7 +80,7 @@ void UavModel::updateModelData()
     uav_positions[2] = uav_pos3;
     uav_positions[3] = uav_pos4;
 
-    
+    //ROS_INFO("This is running");
      
     for(int i = 0; i < connected_clients; i++)
     {

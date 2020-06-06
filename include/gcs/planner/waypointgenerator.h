@@ -20,6 +20,6 @@ public:
     std::vector<sensor_msgs::NavSatFix> returnPositionsBasedOnLocations(int locations, double bearing, sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end);
 
 private:
-    std::vector<sensor_msgs::NavSatFix> route;
+   // std::vector<sensor_msgs::NavSatFix> route;
 };
 #endif //WAYPOINTGENERATOR_H

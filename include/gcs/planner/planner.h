@@ -24,7 +24,6 @@
 #include <Eigen/Dense>
 #include <tuple>
 #include <QDebug>
-#include "gcs/model/uavmodel.h"
 #include "gcs/planner/waypointgenerator.h"
 #include <sstream>
 #include <iostream>
@@ -46,6 +45,7 @@ class GCS: public QObject
     Q_PROPERTY(int getPlayPause READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
     Q_PROPERTY(QVariantList trackpoints READ getPointVector)
     
+       
 
    
     public:
@@ -60,6 +60,13 @@ class GCS: public QObject
         FINISHED,
         GO_HOME
 
+    };
+
+    enum {
+        NameRole,
+        PositionRole = Qt::UserRole + 1,
+        BatteryRole
+        
     };
 
     enum WaypointTask
@@ -85,6 +92,7 @@ class GCS: public QObject
     bool getPlayPause();
     void initPublishers();
     void setMissionParams();
+    void startTimer();
     QVariantList getPointVector();
     sensor_msgs::NavSatFix convertTextToNavSatFix(std::string input_string);
 
@@ -133,8 +141,12 @@ class GCS: public QObject
     std::vector<gcs::Waypoint> transect_list;
     QVector<QGeoCoordinate> qml_gps_points;
 
-    UavModel model;
+    
     GpsUtils gpsGenerator;
+   
+
+    
+      
 
 };
 

@@ -6,16 +6,22 @@ GCS::GCS()
 
   initPublishers();
 
-//   qml_gps_points << QGeoCoordinate(10, 10, 10);
+  
+  startTimer();
+  ROS_INFO("Con Planner");
+
     
 }
 
 GCS::~GCS()
 {
-    QTimer timer;
-    timer.setInterval(20);
-    QObject::connect(&timer, &QTimer::timeout, &model, &UavModel::updateModelData);
-    timer.start();
+    
+}
+
+void GCS::startTimer()
+{
+   //timer = new QTimer(this);
+
 }
 
 void GCS::initPublishers()
@@ -255,6 +261,8 @@ bool GCS::getPlayPause()
 
 void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
 {
+  qml_gps_points.clear();
+  //ROS_INFO("Size before: %d", qml_gps_points.length());
     // Process incoming strings
     sensor_msgs::NavSatFix start_pos;
     sensor_msgs::NavSatFix end_pos;
@@ -265,13 +273,11 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
 
     double bearing = gpsGenerator.ComputeBearing(start_pos, end_pos);
 
-    // ROS_INFO("Start Pos Lat = %f", start_pos.latitude);
-    // ROS_INFO("End Pos Lon = %f ", end_pos.longitude);
   
 
     gcs::Waypoint msg;
     uav_route = gpsGenerator.returnPositionsBasedOnLocations(num_locations, bearing, start_pos, end_pos);
-
+    //ROS_INFO("UAV ROUTE Size %d", uav_route.size());
     QGeoCoordinate start_coord;
     QGeoCoordinate end_coord;
 
@@ -289,12 +295,12 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
         p_single.setLatitude(uav_route[i].latitude) ;
         p_single.setLongitude(uav_route[i].longitude);
 
-        //ROS_INFO("Coordinates Lat: %f  Lon: %f", p_single.latitude(), p_single.longitude());
-
         qml_gps_points.append(p_single);
     }
 
     qml_gps_points.append(end_coord);
+    uav_route.clear();
+    //ROS_INFO("Size after: %d", qml_gps_points.length());
 
 
 }

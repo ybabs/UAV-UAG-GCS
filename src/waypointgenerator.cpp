@@ -76,6 +76,7 @@ double GpsUtils::ComputeBearing(sensor_msgs::NavSatFix start_point, sensor_msgs:
 
 std::vector<sensor_msgs::NavSatFix>GpsUtils::returnInterpolatedPoints(int interval, double bearing, sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end)
 {
+     std::vector<sensor_msgs::NavSatFix> route;
     double d = GetPathLength(start, end);
     std::cout<< "Distance: " << d << std::endl;
     int distance = (int) d / interval;
@@ -96,6 +97,7 @@ std::vector<sensor_msgs::NavSatFix>GpsUtils::returnInterpolatedPoints(int interv
 
 std::vector<sensor_msgs::NavSatFix>GpsUtils::returnPositionsBasedOnLocations(int loc_count, double bearing, sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end)
 {
+    std::vector<sensor_msgs::NavSatFix> route;
     double total_distance = GetPathLength(start, end);
     double dist = total_distance / loc_count; // return number of points.
     int interval = (int) dist;

@@ -57,8 +57,8 @@ Map{
 
     center {
         // The Qt Company in Oslo
-        latitude: 59.9485
-        longitude: 10.7686
+        latitude:52.769862
+        longitude: -1.272527
     }
     gesture.flickDeceleration: 3000
     gesture.enabled: true
@@ -167,7 +167,7 @@ Map{
 
 
     MapItemView{
-        model: planner.uavModel
+        model: mav.uavModel
         delegate: MapQuickItem{
             coordinate:model.position
             sourceItem: Image {

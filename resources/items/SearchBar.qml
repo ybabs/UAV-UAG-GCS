@@ -127,32 +127,21 @@ ToolBar{
             }
         }
 
-        TextField{
-            id:bearingText
-            Layout.preferredWidth:parent.width * 0.06
-            Layout.fillWidth:true
-            Behavior on opacity { NumberAnimation{} }
-            visible: opacity ? true : false
-            placeholderText: "Bearing (degrees)"
-            validator: IntValidator{bottom:0; top:360}
-            onAccepted: {
-                console.log(bearingText.text + " degrees")
-            }
-        }
-
         Button{
             id: generateWpButton
             text:"Generate"
             onClicked:{
+                planner.addGeneratedWaypoints(searchText.text, endSearchText.text, waypointText.text)
 
-                planner.addGeneratedWaypoints(searchText.text, endSearchText.text, 5)
                 for(var i in planner.trackpoints){
                     var p = planner.trackpoints[i];
-                   //console.log("lat: ", p.latitude, "lon: ", p.longitude, "elevation: ", p.altitude)
                    pointsList.append(p)
                 }
 
                 waypointGenerated(pointsList)
+
+                
+                
 
             }
         }
