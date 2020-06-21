@@ -33,7 +33,6 @@ QObject *UavModel::uavModel() const
     return m_uavModel;
 }
 
-
 void UavModel::batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg)
 {
   double battery = msg->voltage;

@@ -131,7 +131,18 @@ ApplicationWindow{
     }
 
     ControlComponent{
+        id: controlButtons
 
+    }
+
+    StatusBar{
+        id:statBar
+          anchors{
+              left:controlButtons.right
+              bottom: controlButtons.bottom
+              leftMargin:5
+            //   bottomMargin:10
+         }      
     }
 
 

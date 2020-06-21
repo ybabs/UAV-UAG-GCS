@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.14
 Rectangle{
     width:260
     height:40
-    color: "transparent"
+    color: "#AEA79F"
     radius:10 
 
 
@@ -18,7 +18,6 @@ Rectangle{
     }
  
     ListView{
-        // anchors.fill:parent
         anchors{
             left: batteryText.right
             leftMargin: 5
@@ -26,7 +25,7 @@ Rectangle{
         width: parent.width
         height:parent.height
         spacing: 4
-        model:planner.uavModel
+        model:mav.uavModel
         orientation:ListView.Horizontal
         delegate:batteryDelegate
         focus: true
@@ -34,14 +33,14 @@ Rectangle{
 
     Component{
         id:batteryDelegate
-        GreenBox {
+        Box {
             height:40
             width:40
-            color:"transparent"
              Text{
                  text:model.battery
-                 anchors.verticalCenter : parent.verticalCenter
-                 font.pixelSize: 12
+                anchors.verticalCenter: parent.verticalCenter 
+                anchors.left: parent.left
+                 font.pixelSize: 15
 
              }
              

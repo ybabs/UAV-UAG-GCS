@@ -5,6 +5,11 @@ import QtQuick.Controls.Material 2.14
 
     RowLayout{
 
+        property bool mav1checked
+        property bool mav2checked
+        property bool mav3checked
+        property bool mav4checked
+
         CheckBox{
             id: mav1checkBox
             text: "MAV 1"
@@ -12,7 +17,12 @@ import QtQuick.Controls.Material 2.14
             onClicked: {
                 if(checked)
                 {
-                    // TODO Implement logic here
+                    mav1checked = true
+                   // planner.getMavId = 1
+                }
+                else
+                {
+                    mav1checked=false
                 }
             }
 
@@ -24,7 +34,13 @@ import QtQuick.Controls.Material 2.14
             onClicked: {
                 if(checked)
                 {
-                    // TODO Implement logic here
+                    mav2checked = true
+                    //planner.getMavId = 2
+                }
+
+                else 
+                {
+                    mav2checked = false
                 }
             }
 
@@ -36,7 +52,12 @@ import QtQuick.Controls.Material 2.14
             onClicked: {
                 if(checked)
                 {
-                    // TODO Implement logic here
+                    mav3checked = true
+                    //planner.getMavId = 3
+                }
+                else 
+                {
+                    mav3checked = false
                 }
             }
 
@@ -48,19 +69,42 @@ import QtQuick.Controls.Material 2.14
              onClicked: {
                  if(checked)
                  {
-                     // TODO Implement logic here
+                     mav4checked = true
+                    //planner.getMavId = 4
+                 }
+
+                 else
+                 {
+                     mav4checked = false
                  }
              }
-
         }
 
         Button{
             id: setMavControlButton
-            text: "Set Control"
+            highlighted:true
+            text: "Upload"
             onClicked: {
 
-                // Upload data here
-
+                if(mav1checked)
+                {
+                    planner.getMavId = 1
+                    //  planner.armMav()
+                }
+                if(mav2checked)
+                {
+                    planner.getMavId = 2
+                }
+                if(mav3checked)
+                {
+                    planner.getMavId = 3
+                }
+                if(mav4checked)
+                {
+                    planner.getMavId = 4
+                }
+                
+                planner.armMav()
             }
 
         }
@@ -74,6 +118,9 @@ import QtQuick.Controls.Material 2.14
                 mav2checkBox.checked = true;
                 mav3checkBox.checked = true;
                 mav4checkBox.checked = true;
+                planner.getMavId = 255;
+               
+                 planner.armMav()
 
                 // set Logic here
 

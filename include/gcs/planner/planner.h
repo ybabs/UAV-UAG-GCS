@@ -16,6 +16,9 @@
 #include <std_msgs/String.h>
 #include <tf/tf.h>
 #include <sensor_msgs/Joy.h>
+#include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/MultiArrayDimension.h>
+#include <std_msgs/MultiArrayLayout.h>
 #include "gcs/Waypoint.h"
 #include "gcs/Missionparameters.h"
 #include "gcs/Action.h"
@@ -43,6 +46,7 @@ class GCS: public QObject
     Q_PROPERTY(float getSamplingTime READ getSamplingTime WRITE setSamplingTime NOTIFY samplingTimeSet)
     Q_PROPERTY(int getSamplingFlag READ getSamplingFlag WRITE setSamplingFlag NOTIFY samplingFlagSet )
     Q_PROPERTY(int getPlayPause READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
+    Q_PROPERTY(int getMavId READ getMavId WRITE setMavId NOTIFY mavIdSet)
     Q_PROPERTY(QVariantList trackpoints READ getPointVector)
     
        
@@ -74,6 +78,8 @@ class GCS: public QObject
         LAND
     };
 
+    int getMavId();
+    void setMavId(int id);
     void setDroneSpeed(int speed); //
     int getDroneSpeed(); //
     void setHoverFlag(int flag); //
@@ -105,6 +111,7 @@ class GCS: public QObject
         void samplingFlagSet();
         void samplingTimeSet();
         void pauseSet();
+        void mavIdSet();
 
     public slots:   
      void land();
@@ -112,6 +119,7 @@ class GCS: public QObject
      void takeoff(); 
      void startMission();
      void abortMission();
+     void armMav();
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
      void addGeneratedWaypoints(QString start, QString end, int num_locations);
     
@@ -132,17 +140,21 @@ class GCS: public QObject
     int sampling_flag;
     float sampling_time;
     bool mission_pause;
+    int mav_id;
 
     ros::Publisher mission_param_publisher;
     ros::Publisher waypoint_publisher;
     ros::Publisher mission_pause_publisher;
     ros::Publisher drone_action_publisher;
+    ros::Publisher active_mav_publisher;
 
     std::vector<gcs::Waypoint> transect_list;
     QVector<QGeoCoordinate> qml_gps_points;
-
+    std::vector<int> active_mavs;
     
     GpsUtils gpsGenerator;
+
+
    
 
     

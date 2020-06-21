@@ -1,10 +1,12 @@
 #include "gcs/planner/planner.h"
 
 
-GCS::GCS()
+GCS::GCS():
+active_mavs(4,0)
 {
 
   initPublishers();
+
 
   
   startTimer();
@@ -31,6 +33,7 @@ void GCS::initPublishers()
   waypoint_publisher = nh.advertise<gcs::Waypoint>("gcs/waypoint", 10);
   mission_pause_publisher = nh.advertise<std_msgs::UInt8>("gcs/mission_pause", 1);
   drone_action_publisher = nh.advertise<gcs::Action>("gcs/mission_action", 1);
+  active_mav_publisher = nh.advertise<std_msgs::Int32MultiArray>("gcs/active_mavs", 10);
 
 }
 
@@ -60,6 +63,93 @@ void GCS::takeoff()
   msg.droneaction = 1;
   drone_action_publisher.publish(msg);
   ROS_INFO("Takeoff Pressed");
+}
+
+int GCS::getMavId()
+{
+
+  return mav_id;
+
+}
+
+void GCS::setMavId(int id)
+{
+  if(mav_id != id)
+  {
+    mav_id = id;
+    if(id == 1)
+    {
+      active_mavs[0] = 1;  
+      for(auto &mav: active_mavs )
+      {
+        ROS_INFO( "Mav %d", mav);
+      }
+    }
+
+    else if(id == 2)
+    {
+      active_mavs[1] = 1;  
+      for(auto &mav: active_mavs )
+      {
+        ROS_INFO( "Mav %d", mav);
+      }
+    }
+
+    else if(id == 3)
+    {
+      active_mavs[2] = 1;
+      for(auto &mav: active_mavs )
+      {
+        ROS_INFO( "Mav %d", mav);
+      }  
+    }
+
+    else if(id == 4)
+    {
+      active_mavs[3] = 1;  
+      
+      for(auto &mav: active_mavs )
+      {
+        ROS_INFO( "Mav %d", mav);
+      }
+    } 
+
+    if(id == 255)
+    {
+       for (auto &mav : active_mavs)
+        {
+          mav = 1;
+          ROS_INFO( "Mav %d", mav);
+        }
+    } 
+
+    mavIdSet();
+
+    
+  }
+ 
+}
+
+void GCS::armMav()
+{
+   std_msgs::Int32MultiArray activeMav_msg;
+
+   activeMav_msg.layout.dim.push_back(std_msgs::MultiArrayDimension());
+   activeMav_msg.layout.dim[0].size = active_mavs.size();
+   activeMav_msg.layout.dim[0].stride = 1;
+
+   for( auto &itr : active_mavs)
+   {
+     activeMav_msg.data.push_back(itr);
+   }
+
+   active_mav_publisher.publish(activeMav_msg);
+  for( auto &itr : active_mavs)
+   {
+     itr = 0;
+   }
+
+
 }
 
 int GCS::getDroneSpeed()
@@ -236,6 +326,8 @@ void GCS::addWaypoint(double lat, double lon,  float alt, int sample, float samp
   msg.sampleTime = sampleTime;
 
   waypoint_publisher.publish(msg);   
+  ROS_INFO("Waypoint Added:, Lat: %f, Lon: %f, Alt: %f , Sample: %d, SampleTime: %f",  lat, lon, alt,
+                                                                                 sample, sampleTime);
    
 }
 

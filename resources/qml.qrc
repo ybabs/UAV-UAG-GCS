@@ -15,5 +15,7 @@
         <file>items/MissionConfigComponent.qml</file>
         <file>items/Line.qml</file>
         <file>items/WaypointParamComponent.qml</file>
+        <file>items/StatusBar.qml</file>
+        <file>items/Box.qml</file>
     </qresource>
 </RCC>

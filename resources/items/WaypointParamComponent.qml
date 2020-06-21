@@ -20,7 +20,7 @@ Popup{
             Layout.fillWidth: true
             placeholderText: "Enter Altitude"
             validator: IntValidator{bottom: 1; top: 100}
-            onAccepted: planner.getAltitude = altitudeText.text
+            onEditingFinished: planner.getAltitude = altitudeText.text
         }
 
         CheckBox {
@@ -47,7 +47,7 @@ Popup{
              Layout.fillWidth:true
              placeholderText: "Enter Sampling Time"
              focus:true
-             onAccepted: planner.getSamplingTime = samplingText.text
+             onEditingFinished: planner.getSamplingTime = samplingText.text
             inputMethodHints: Qt.ImhDigitsOnly
          }
 
@@ -70,6 +70,7 @@ Popup{
                     text:"Cancel"
                     onClicked: {
                         missionPopup.close()
+                        //TODO //Clear Waypoints
                     }
                 }
             }
