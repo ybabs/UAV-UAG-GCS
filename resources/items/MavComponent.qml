@@ -104,7 +104,7 @@ import QtQuick.Controls.Material 2.14
                     planner.getMavId = 4
                 }
                 
-                planner.armMav()
+                planner.uploadWaypoints()
             }
 
         }
@@ -120,7 +120,7 @@ import QtQuick.Controls.Material 2.14
                 mav4checkBox.checked = true;
                 planner.getMavId = 255;
                
-                 planner.armMav()
+                 planner.uploadWaypoints()
 
                 // set Logic here
 

@@ -7,9 +7,6 @@ active_mavs(4,0)
 
   initPublishers();
 
-
-  
-  startTimer();
   ROS_INFO("Con Planner");
 
     
@@ -20,11 +17,7 @@ GCS::~GCS()
     
 }
 
-void GCS::startTimer()
-{
-   //timer = new QTimer(this);
 
-}
 
 void GCS::initPublishers()
 {
@@ -149,6 +142,20 @@ void GCS::armMav()
      itr = 0;
    }
 
+
+}
+
+void GCS::uploadWaypoints()
+{
+  armMav();
+  ROS_INFO("Size of messages %d", transect_list.size());
+
+  for(auto & waypoint: transect_list)
+  {
+     waypoint_publisher.publish(waypoint);
+  }
+
+  transect_list.clear();
 
 }
 
@@ -359,6 +366,7 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
     sensor_msgs::NavSatFix start_pos;
     sensor_msgs::NavSatFix end_pos;
     std::vector<sensor_msgs::NavSatFix> uav_route;
+    gcs::Waypoint iterated_position;
 
     start_pos = convertTextToNavSatFix(start.toStdString());
     end_pos = convertTextToNavSatFix(end.toStdString());
@@ -383,11 +391,18 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
     for(int i = 0; i < uav_route.size(); i++)
     {
         QGeoCoordinate p_single ;
-
         p_single.setLatitude(uav_route[i].latitude) ;
         p_single.setLongitude(uav_route[i].longitude);
-
         qml_gps_points.append(p_single);
+
+        iterated_position.latitude = uav_route[i].latitude;
+        iterated_position.longitude = uav_route[i].longitude;
+        iterated_position.altitude = 10; // TODO define this later
+        iterated_position.sample = 1; // TODO Define this later
+        iterated_position.sampleTime = 20; // TODO definet his later
+        
+        transect_list.push_back(iterated_position);
+
     }
 
     qml_gps_points.append(end_coord);

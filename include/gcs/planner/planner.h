@@ -66,13 +66,6 @@ class GCS: public QObject
 
     };
 
-    enum {
-        NameRole,
-        PositionRole = Qt::UserRole + 1,
-        BatteryRole
-        
-    };
-
     enum WaypointTask
     {
         LAND
@@ -98,7 +91,6 @@ class GCS: public QObject
     bool getPlayPause();
     void initPublishers();
     void setMissionParams();
-    void startTimer();
     QVariantList getPointVector();
     sensor_msgs::NavSatFix convertTextToNavSatFix(std::string input_string);
 
@@ -120,6 +112,7 @@ class GCS: public QObject
      void startMission();
      void abortMission();
      void armMav();
+     void uploadWaypoints();
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
      void addGeneratedWaypoints(QString start, QString end, int num_locations);
     
@@ -152,12 +145,7 @@ class GCS: public QObject
     QVector<QGeoCoordinate> qml_gps_points;
     std::vector<int> active_mavs;
     
-    GpsUtils gpsGenerator;
-
-
-   
-
-    
+    GpsUtils gpsGenerator; 
       
 
 };
