@@ -12,7 +12,6 @@ Map{
     property MapCircle waypoint 
     id:map
     anchors.fill: parent
-    property bool missionType : false
     property bool followme: true
     property variant scaleLengths: [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000]
     function computeScale()
@@ -154,6 +153,19 @@ Map{
 
     }
 
+    // PositionSource{  // set this using whatttt....
+    //     id:positionSource
+    //     updateInterval: 1000
+    //     active: followme
+
+    //     onPositionChanged: {
+    //         map.center = positionSource.position.coordinate
+    //         var coord =  positionSource.position.coordinate
+    //         console.log("Coordinate:", coord.longitude, coord.latitude);
+    //     }
+    // }
+
+
     MapItemView{
         model: mav.uavModel
         delegate: MapQuickItem{
@@ -209,26 +221,16 @@ Map{
         acceptedButtons: Qt.LeftButton
 
         onPressAndHold: {
+            waypoint = Qt.createQmlObject('import QtLocation 5.14;\MapCircle {radius: 5; color: "red"; opacity: 0.5; border.width: 0.5}', map)
+            var pos = map.toCoordinate(Qt.point(mouse.x,mouse.y));
+            waypoint.center = map.toCoordinate(Qt.point(mouse.x, mouse.y))
+            //var markerId = markerModel.count + 1;
+            markerModel.append({"position":pos})
+            uavPath.addCoordinate(pos)
 
-            if(missionType == true)
-            {
-                waypoint = Qt.createQmlObject('import QtLocation 5.14;\MapCircle {radius: 5; color: "red"; opacity: 0.5; border.width: 0.5}', map)
-                var pos = map.toCoordinate(Qt.point(mouse.x,mouse.y));
-                waypoint.center = map.toCoordinate(Qt.point(mouse.x, mouse.y))
-                //var markerId = markerModel.count + 1;
-                markerModel.append({"position":pos})
-                uavPath.addCoordinate(pos)
-
-                console.log(pos.latitude)
-                console.log(pos.longitude)
-                missionPopup.open()
-            }
-
-            else
-            {
-                console.log("Swarm Mode")
-            }
-
+            console.log(pos.latitude)
+            console.log(pos.longitude)
+            missionPopup.open()
         }
 
     }

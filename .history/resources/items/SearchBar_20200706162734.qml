@@ -8,7 +8,6 @@ ToolBar{
     property bool busyIndicatorRunning: false
     property bool searchBarVisible: true
     property bool inPlay: true
-    property bool swarmCheckState: false
     property string pauseText: "Pause"
     property string playText: "Play"
 
@@ -17,11 +16,12 @@ ToolBar{
     signal endSearchTextChanged(string searchCoord)
     signal waypointGenerated(ListModel waypoints)
     signal showMap()
-    signal swarmModeChecked(bool value)
 
     ListModel{
         id: pointsList
     }
+
+
 
 
     onSearchBarVisibleChanged: {
@@ -153,26 +153,7 @@ ToolBar{
             id:landButton
             text:"Land"
             onClicked: planner.land()
-        } 
-        
-        CheckBox{
-            id:swarmCheckBox
-            text: "Swarm Mode"
-            onClicked:{
-                if(checked)
-                {
-                    swarmCheckState = true
-                }
-
-                else
-                {
-                    swarmCheckState = false
-                }
-
-                swarmModeChecked(swarmCheckState)
-            }
         }
-
 
         MissionConfigComponent{
 
@@ -182,7 +163,6 @@ ToolBar{
 
         }
 
-    
 
 
 

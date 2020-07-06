@@ -115,7 +115,6 @@ class GCS: public QObject
      void uploadWaypoints();
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
      void addGeneratedWaypoints(QString start, QString end, int num_locations);
-     void generateDisks(QString center, double distance);
     
 
 

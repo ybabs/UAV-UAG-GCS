@@ -55,18 +55,25 @@ ApplicationWindow{
                           stackView.currentItem.objectName !== "suggestionView" ? false : true
 
         onWaypointGenerated:{  
-            waypointModel.clear()               
-            for(var i = 0; i < waypoints.count; i++){
-                waypointModel.append(waypoints.get(i))
-            }    
-            waypoints.clear()           
-            console.log(waypoints.count)
-            console.log(waypointModel.count)
+        
+               waypointModel.clear()             
+              
+                for(var i = 0; i < waypoints.count; i++){
+                  waypointModel.append(waypoints.get(i))
+                }    
+                waypoints.clear()   
+
+                
+                
+                
+                console.log(waypoints.count)
+                console.log(waypointModel.count)
+                
+
+                
+                 
         }       
 
-        onSwarmModeChecked: {
-            MapComponent.missionType = searchBar.swarmCheckState
-         }
         onShowMap: stackView.pop(page)
     }
 
@@ -135,9 +142,7 @@ ApplicationWindow{
               bottom: controlButtons.bottom
               leftMargin:5
             //   bottomMargin:10
-         }    
-
-
+         }      
     }
 
 

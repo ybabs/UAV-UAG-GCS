@@ -9,7 +9,26 @@ import QtQuick.Controls.Material 2.14
         property bool mav2checked
         property bool mav3checked
         property bool mav4checked
-        
+        property bool swarmCheckState
+        signal swarmModeChecked(bool value)
+
+        CheckBox{
+            id:swarmCheckBox
+            text: "Swarm Mode"
+            onClicked:{
+                if(checked)
+                {
+                    swarmCheckState = true
+                }
+
+                else
+                {
+                    swarmCheckState = false
+                }
+
+                swarmModeChecked(swarmCheckState)
+            }
+        }
 
         CheckBox{
             id: mav1checkBox

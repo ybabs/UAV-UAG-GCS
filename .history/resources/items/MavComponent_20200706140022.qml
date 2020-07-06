@@ -9,7 +9,6 @@ import QtQuick.Controls.Material 2.14
         property bool mav2checked
         property bool mav3checked
         property bool mav4checked
-        
 
         CheckBox{
             id: mav1checkBox

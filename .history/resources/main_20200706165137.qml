@@ -65,7 +65,7 @@ ApplicationWindow{
         }       
 
         onSwarmModeChecked: {
-            MapComponent.missionType = searchBar.swarmCheckState
+            MapComponent.missionType = searchBar.onSwarmModeChecked()
          }
         onShowMap: stackView.pop(page)
     }

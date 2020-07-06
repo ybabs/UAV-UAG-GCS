@@ -409,10 +409,6 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
     uav_route.clear();
     //ROS_INFO("Size after: %d", qml_gps_points.length());
 
-}
-
-void GCS:: generateDisks(QString center, double distance)
-{
 
 }
 

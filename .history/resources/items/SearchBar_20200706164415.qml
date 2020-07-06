@@ -153,8 +153,16 @@ ToolBar{
             id:landButton
             text:"Land"
             onClicked: planner.land()
-        } 
-        
+        }
+
+        MissionConfigComponent{
+
+        }
+
+        MavComponent{
+
+        }
+
         CheckBox{
             id:swarmCheckBox
             text: "Swarm Mode"
@@ -173,16 +181,6 @@ ToolBar{
             }
         }
 
-
-        MissionConfigComponent{
-
-        }
-
-        MavComponent{
-
-        }
-
-    
 
 
 
