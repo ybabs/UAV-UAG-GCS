@@ -12,9 +12,18 @@ Map{
     property MapCircle waypoint 
     id:map
     anchors.fill: parent
-    property bool missionType : false
     property bool followme: true
+    property var pos
     property variant scaleLengths: [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000]
+    
+    ListModel{
+        id:disksModel
+    }
+
+    ListModel{
+        id:boundingBoxModel
+    }
+
     function computeScale()
     {
         var coord1, coord2, dist, text, f
@@ -57,7 +66,6 @@ Map{
     }
 
     center {
-        // The Qt Company in Oslo
         latitude:52.769862
         longitude: -1.272527
     }
@@ -189,6 +197,33 @@ Map{
         }
     }
 
+        MapItemView{
+        model: boundingBoxModel
+        delegate:MapQuickItem{
+            coordinate:QtPositioning.coordinate(model.latitude, model.longitude)
+            sourceItem: Image{
+                id:waypointMarker
+                opacity: .75
+                sourceSize.width:80
+                sourceSize.height:80
+                source: "../images/marker-green.png"
+            }
+        anchorPoint.x: waypointMarker.width/2
+        anchorPoint.y: waypointMarker.height/2
+        }
+    }
+
+    MapItemView{
+        model:disksModel
+        delegate:MapCircle{
+            border.color: "red"
+            border.width: 1
+            center: QtPositioning.coordinate(model.latitude, model.longitude)
+            radius: 53
+        }
+    }
+    
+
 
     Line{
         id: uavPath
@@ -196,10 +231,40 @@ Map{
 
     WaypointParamComponent{
         id:missionPopup
+
+        onOkButtonClicked:{
+
+            markerModel.append({"position":pos})
+            uavPath.addCoordinate(pos)
+            console.log(pos.latitude + ", " + pos.longitude)
+
+        }
     }
 
     DiskCoverageComponent{
         id:diskGenPopup
+
+        onWaypointGenerated:{
+
+            disksModel.clear()
+            // create bounding box
+            for (var i = 0; i < 4; i++)
+            {
+                boundingBoxModel.append(waypoints.get(i))
+               
+            }
+            for (var i = 4; i < waypoints.count; i++)
+            {
+                disksModel.append(waypoints.get(i))
+
+            }
+
+            // clear waypoints
+            waypoints.clear()
+
+            
+
+        }
     }
 
     MouseArea{
@@ -210,23 +275,19 @@ Map{
 
         onPressAndHold: {
 
-            if(missionType == true)
+            if(multiUavMode == false)
             {
                 waypoint = Qt.createQmlObject('import QtLocation 5.14;\MapCircle {radius: 5; color: "red"; opacity: 0.5; border.width: 0.5}', map)
-                var pos = map.toCoordinate(Qt.point(mouse.x,mouse.y));
                 waypoint.center = map.toCoordinate(Qt.point(mouse.x, mouse.y))
-                //var markerId = markerModel.count + 1;
-                markerModel.append({"position":pos})
-                uavPath.addCoordinate(pos)
-
-                console.log(pos.latitude)
-                console.log(pos.longitude)
+                pos = map.toCoordinate(Qt.point(mouse.x,mouse.y));
                 missionPopup.open()
+               
             }
 
             else
             {
                 console.log("Swarm Mode")
+                diskGenPopup.open()
             }
 
         }

@@ -93,6 +93,7 @@ class GCS: public QObject
     void setMissionParams();
     QVariantList getPointVector();
     sensor_msgs::NavSatFix convertTextToNavSatFix(std::string input_string);
+    QGeoCoordinate convertNavSatFixToQGeoCoordinate(sensor_msgs::NavSatFix &input_coord);
 
     signals:
         void speedSliderChanged();

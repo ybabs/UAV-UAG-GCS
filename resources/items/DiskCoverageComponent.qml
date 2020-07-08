@@ -11,6 +11,13 @@ Popup
     visible: false
     focus:true
 
+    signal waypointGenerated(ListModel waypoints)
+
+
+    ListModel{
+        id: pointsList
+    }
+
     ColumnLayout{
 
         TextField{
@@ -19,12 +26,12 @@ Popup
             property bool ignoreTextChange: false
             placeholderText: qsTr("Enter center coordinate")
             Layout.fillWidth:true
-            onTextChanged:{
-                if(!ignoreTextChange){
-                    searchTextChanged(text)
-                }
-            }
-            onAccepted: startSearch(text) 
+            // onTextChanged:{
+            //     if(!ignoreTextChange){
+            //         searchTextChanged(text)
+            //     }
+            // }
+            // onAccepted: startSearch(text) 
         }
 
         TextField{
@@ -42,7 +49,13 @@ Popup
                      id:okButton
                      text: "OK"
                      onClicked:{
-                         planner.generateDisks(centerSearchText, centerDistanceText)
+                         planner.generateDisks(centerSearchText.text, centerDistanceText.text)
+
+                         for (var i in planner.trackpoints){
+                             var p = planner.trackpoints[i];
+                             pointsList.append(p)
+                         }
+                         waypointGenerated(pointsList) 
                          diskGenPopup.close();
                      }
 

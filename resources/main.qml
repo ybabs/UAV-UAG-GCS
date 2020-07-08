@@ -50,9 +50,6 @@ ApplicationWindow{
     header: SearchBar{
         id:searchBar
         width:appWindow.width
-        searchBarVisible: stackView.depth > 1 &&
-                          stackView.currentItem &&
-                          stackView.currentItem.objectName !== "suggestionView" ? false : true
 
         onWaypointGenerated:{  
             waypointModel.clear()               
@@ -65,18 +62,21 @@ ApplicationWindow{
         }       
 
         onSwarmModeChecked: {
-            MapComponent.missionType = searchBar.swarmCheckState
+            page.stackViewBool = searchBar.swarmCheckState
+            
+            console.log(  page.stackViewBool)
          }
-        onShowMap: stackView.pop(page)
     }
 
-
-    StackView{
+   StackView{
         id:stackView
         anchors.fill: parent
         focus:true
         initialItem: Item {
-            id: page
+        id: page
+
+        property bool stackViewBool
+
 
             Component{
                 id: mapComponent
@@ -84,7 +84,9 @@ ApplicationWindow{
                 MapComponent{
                     width:page.width
                     height: page.height
+                    property bool multiUavMode : page.stackViewBool
 
+                    
                         onErrorChanged: {
                             if(map.error !== Map.NoError){
                                 var title = qsTr("ProviderError");
@@ -113,8 +115,6 @@ ApplicationWindow{
 
                         }
 
-                        
-
                 }
 
             }
@@ -134,7 +134,6 @@ ApplicationWindow{
               left:controlButtons.right
               bottom: controlButtons.bottom
               leftMargin:5
-            //   bottomMargin:10
          }    
 
 

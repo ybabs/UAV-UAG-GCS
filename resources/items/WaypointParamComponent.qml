@@ -9,6 +9,7 @@ Popup{
     height: 230
     visible: false
     focus:true
+    signal okButtonClicked
 
 
     ColumnLayout{
@@ -61,6 +62,7 @@ Popup{
                         planner.addWaypoint(waypoint.center.latitude, waypoint.center.longitude,
                                             planner.getAltitude, planner.getSamplingFlag,
                                             planner.getSamplingTime)
+                        okButtonClicked()
                         missionPopup.close();
                     }
                 }

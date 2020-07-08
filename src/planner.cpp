@@ -148,7 +148,7 @@ void GCS::armMav()
 void GCS::uploadWaypoints()
 {
   armMav();
-  ROS_INFO("Size of messages %d", transect_list.size());
+  //ROS_INFO("Size of messages %d", transect_list.size());
 
   for(auto & waypoint: transect_list)
   {
@@ -372,10 +372,6 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
     end_pos = convertTextToNavSatFix(end.toStdString());
 
     double bearing = gpsGenerator.ComputeBearing(start_pos, end_pos);
-
-  
-
-    gcs::Waypoint msg;
     uav_route = gpsGenerator.returnPositionsBasedOnLocations(num_locations, bearing, start_pos, end_pos);
     //ROS_INFO("UAV ROUTE Size %d", uav_route.size());
     QGeoCoordinate start_coord;
@@ -413,6 +409,135 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
 
 void GCS:: generateDisks(QString center, double distance)
 {
+  qml_gps_points.clear();
+  QVector<QGeoCoordinate>bounding_box;
+  sensor_msgs::NavSatFix center_point;
+  gcs::Waypoint iterated_position;
+
+
+ROS_INFO ("Distance is %f", distance);
+  center_point = convertTextToNavSatFix(center.toStdString());
+  
+  // bounding boxes are in a clockwise dfirction
+   sensor_msgs::NavSatFix top_right = gpsGenerator.GetDestinationCoordinate(center_point, 45, distance);
+   sensor_msgs::NavSatFix bottom_right = gpsGenerator.GetDestinationCoordinate(center_point, 135, distance);
+   sensor_msgs::NavSatFix top_left = gpsGenerator.GetDestinationCoordinate(center_point, 315, distance);
+   sensor_msgs::NavSatFix bottom_left = gpsGenerator.GetDestinationCoordinate(center_point, 225, distance);
+
+  // first 4 elements in the vecvtor represents the bouding box.
+  QGeoCoordinate q_top_right = convertNavSatFixToQGeoCoordinate(top_right);
+   QGeoCoordinate q_top_left = convertNavSatFixToQGeoCoordinate(top_left);
+    QGeoCoordinate q_bottom_right = convertNavSatFixToQGeoCoordinate(bottom_right);
+     QGeoCoordinate q_bottom_left = convertNavSatFixToQGeoCoordinate(bottom_left);
+
+  qml_gps_points.push_back(q_top_right);
+  qml_gps_points.push_back(q_bottom_right);
+  qml_gps_points.push_back(q_top_left);
+  qml_gps_points.push_back(q_bottom_left);
+
+  // find the distance between two points to determine the length of the square
+  double l = gpsGenerator.GetPathLength(top_right, bottom_right);
+  int arr_size;
+
+  // determine range of hydrophone //TODO from experiments
+  double h_radius = 38 * sqrt(2); // multiply 
+  double d = sqrt(2) * h_radius;
+  double n_points = l/d;
+  arr_size = floor(n_points) + 1;
+
+  ROS_INFO("Here");
+  ROS_INFO("Arr Size %d", arr_size);
+
+  // Use bottom left as starting position
+  sensor_msgs::NavSatFix initial_position;
+  initial_position.latitude = bottom_left.latitude;
+  initial_position.longitude = bottom_left.longitude;
+
+  std::vector <std::pair <double, double>> points;
+  std::vector <sensor_msgs::NavSatFix> uav_route;
+
+  double x_init = 0;
+  double y_init = 0;
+
+  for (int i = 1; i <= arr_size; i++)
+  {
+    for(int j = 1; j <= arr_size; j++)
+    {
+        double curr_x  = x_init + (2*i - 1) * d/2;
+        double curr_y = y_init + (2*j - 1) * d/2;
+
+        points.push_back(std::make_pair(curr_x, curr_y));
+    }
+  }
+
+   ROS_INFO("Here 2");
+
+   int length = points.size();
+
+   ROS_INFO("length: %d", length);
+
+  sensor_msgs::NavSatFix prev;
+  sensor_msgs::NavSatFix curr;
+  double prev_x_pos;
+  double prev_y_pos; 
+
+  for(int i = 0; i < points.size(); i ++)
+  {
+    double x_pos = points[i].first;
+    double y_pos = points[i].second;
+
+    double bearing; 
+    double length;
+
+    // first case is always at a 45 degree angle
+    if(i == 0)
+    {
+      length = sqrt( pow(x_pos, 2) + pow(y_pos, 2));
+      bearing = 45;
+      curr = gpsGenerator.GetDestinationCoordinate(initial_position, bearing, length);
+      ROS_INFO("Here 4");
+    }
+
+
+    else
+    {
+        double x_dir = x_pos - prev_x_pos;
+        double y_dir = y_pos - prev_y_pos;
+        length = sqrt(pow(x_dir, 2) + pow(y_dir, 2));
+        bearing = atan2(x_dir, y_dir);
+        double brn_drg = RadToDeg(bearing);
+        brn_drg = (brn_drg >= 0) ? brn_drg : brn_drg + 2 * PI;
+        curr = gpsGenerator.GetDestinationCoordinate(prev, brn_drg, length);
+        // ROS_INFO("Here 5");
+    }
+   
+
+    uav_route.push_back(curr);
+    prev = curr;
+    prev_x_pos = x_pos;
+    prev_y_pos = y_pos;
+  }
+
+   ROS_INFO("Here 3");
+
+  for(int i = 0; i < uav_route.size(); i++)
+    {
+        QGeoCoordinate p_single ;
+        p_single.setLatitude(uav_route[i].latitude) ;
+        p_single.setLongitude(uav_route[i].longitude);
+        qml_gps_points.append(p_single);
+
+        iterated_position.latitude = uav_route[i].latitude;
+        iterated_position.longitude = uav_route[i].longitude;
+        iterated_position.altitude = 10; // TODO define this later
+        iterated_position.sample = 1; // TODO Define this later
+        iterated_position.sampleTime = 20; // TODO definet his later
+        
+        transect_list.push_back(iterated_position);
+
+    }
+
+    ROS_INFO("Here exit");
 
 }
 
@@ -432,9 +557,21 @@ void GCS:: generateDisks(QString center, double distance)
         result.push_back(value);
     }
 
+  ROS_INFO("Success");
     gps_output.latitude = result[0];
     gps_output.longitude = result[1];
 
     return gps_output;
 
+ }
+
+ QGeoCoordinate GCS::convertNavSatFixToQGeoCoordinate(sensor_msgs::NavSatFix &input)
+ {
+   QGeoCoordinate output ;
+
+   output.setLatitude(input.latitude);
+   output.setLongitude(input.longitude);
+   output.setAltitude(input.altitude);
+
+   return output;
  }
