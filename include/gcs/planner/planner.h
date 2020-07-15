@@ -30,6 +30,8 @@
 #include "gcs/planner/waypointgenerator.h"
 #include <sstream>
 #include <iostream>
+#include <algorithm>
+
 
 
 
@@ -46,7 +48,7 @@ class GCS: public QObject
     Q_PROPERTY(float getSamplingTime READ getSamplingTime WRITE setSamplingTime NOTIFY samplingTimeSet)
     Q_PROPERTY(int getSamplingFlag READ getSamplingFlag WRITE setSamplingFlag NOTIFY samplingFlagSet )
     Q_PROPERTY(int getPlayPause READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
-    Q_PROPERTY(int getMavId READ getMavId WRITE setMavId NOTIFY mavIdSet)
+    Q_PROPERTY(int mavId READ getMavId WRITE setMavId NOTIFY mavIdSet)
     Q_PROPERTY(QVariantList trackpoints READ getPointVector)
     
        
@@ -117,6 +119,7 @@ class GCS: public QObject
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
      void addGeneratedWaypoints(QString start, QString end, int num_locations);
      void generateDisks(QString center, double distance);
+     std::vector<std::vector<gcs::Waypoint>> splitWaypoints(std::vector<gcs::Waypoint> &vec , size_t n);
     
 
 

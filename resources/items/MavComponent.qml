@@ -9,22 +9,36 @@ import QtQuick.Controls.Material 2.14
         property bool mav2checked
         property bool mav3checked
         property bool mav4checked
-        
+        property bool swarmCheckState
+        signal swarmModeChecked(bool value)
+
+        CheckBox{
+            id:swarmCheckBox
+            text: "Swarm Mode"
+            onClicked:{
+                if(checked)
+                {
+                    swarmCheckState = true
+                }
+
+                else
+                {
+                    swarmCheckState = false
+                }
+
+                swarmModeChecked(swarmCheckState)
+            }
+        }
 
         CheckBox{
             id: mav1checkBox
             text: "MAV 1"
             font.bold:false
-            onClicked: {
-                if(checked)
-                {
-                    mav1checked = true
-                   // planner.getMavId = 1
-                }
-                else
-                {
-                    mav1checked=false
-                }
+            onClicked: planner.mavId = checked
+            Component.onCompleted: checked = planner.mavId
+            Connections{
+                target: planner
+                onStatusChanged: mav1checkBox.checked = planner.mavId
             }
 
         }
@@ -32,17 +46,11 @@ import QtQuick.Controls.Material 2.14
         CheckBox{
             id: mav2checkBox
             text: "MAV 2"
-            onClicked: {
-                if(checked)
-                {
-                    mav2checked = true
-                    //planner.getMavId = 2
-                }
-
-                else 
-                {
-                    mav2checked = false
-                }
+            onClicked: planner.mavId = checked
+            Component.onCompleted: checked = planner.mavId
+            Connections{
+                target: planner
+                onStatusChanged: mav2checkBox.checked = planner.mavId
             }
 
         }
@@ -50,16 +58,11 @@ import QtQuick.Controls.Material 2.14
         CheckBox{
             id: mav3checkBox
             text: "MAV 3"
-            onClicked: {
-                if(checked)
-                {
-                    mav3checked = true
-                    //planner.getMavId = 3
-                }
-                else 
-                {
-                    mav3checked = false
-                }
+            onClicked: planner.mavId = checked
+            Component.onCompleted: checked = planner.mavId
+            Connections{
+                target: planner
+                onStatusChanged: mav3checkBox.checked = planner.mavId
             }
 
         }
@@ -68,17 +71,13 @@ import QtQuick.Controls.Material 2.14
              id: mav4checkBox
              text: "MAV 4"
              onClicked: {
-                 if(checked)
-                 {
-                     mav4checked = true
-                    //planner.getMavId = 4
-                 }
-
-                 else
-                 {
-                     mav4checked = false
-                 }
+                 planner.mavId = 4;
+                 checked = Qt.binding(function() {
+                     return planner.mavId;
+                 })
              }
+
+
         }
 
         Button{
@@ -87,22 +86,22 @@ import QtQuick.Controls.Material 2.14
             text: "Upload"
             onClicked: {
 
-                if(mav1checked)
+                if(mav1checked.status == checked)
                 {
-                    planner.getMavId = 1
+                    planner.mavId = 1
                     //  planner.armMav()
                 }
-                if(mav2checked)
+                if(mav2checked.status == checked)
                 {
-                    planner.getMavId = 2
+                    planner.mavId = 2
                 }
-                if(mav3checked)
+                if(mav3checked.status == checked)
                 {
-                    planner.getMavId = 3
+                    planner.mavId = 3
                 }
-                if(mav4checked)
+                if(mav4checked.status == checked)
                 {
-                    planner.getMavId = 4
+                    planner.mavId = 4
                 }
                 
                 planner.uploadWaypoints()
@@ -119,7 +118,7 @@ import QtQuick.Controls.Material 2.14
                 mav2checkBox.checked = true;
                 mav3checkBox.checked = true;
                 mav4checkBox.checked = true;
-                planner.getMavId = 255;
+                planner.mavId = 255;
                
                  planner.uploadWaypoints()
 

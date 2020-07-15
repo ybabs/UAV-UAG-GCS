@@ -1,4 +1,5 @@
 Header header
+uint8 id   # id of drone for waypoint
 float64 latitude    #degree
 float64 longitude    #degree
 float32 altitude    #WGS 84 reference ellipsoid fused by barometer

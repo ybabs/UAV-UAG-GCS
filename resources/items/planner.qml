@@ -43,7 +43,7 @@ ApplicationWindow {
 
     Plugin {
         id: mapPlugin
-        name:  "mapboxgl" //"esri"//"osm"//"mapboxgl"
+        name:  "osm" //"esri"//"osm"//"mapboxgl"
 
         // PluginParameter {
         //             name: "mapboxgl.mapping.use_fbo"
@@ -285,7 +285,7 @@ ApplicationWindow {
         copyrightsVisible: false
         tilt: 45
          //activeMapType: supportedMapTypes[4]
-        activeMapType: supportedMapTypes[3]
+        activeMapType: supportedMapTypes[1]
 
             ComboBox {
                 Layout.minimumWidth: 200

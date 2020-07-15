@@ -51,11 +51,44 @@ void GCS::goHome()
 void GCS::takeoff()
 {
   gcs::Action msg;
+  std::vector<int> active_mav_copy;  // copy contents of active UAVs. 
+  active_mav_copy = active_mavs;
+  int index;
+
+
+  armMav();
+
+  // find active UAVs
+  int n = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1);
+  ROS_INFO("Active Drones %d", n);
+
+  for(int i = 0; i < n; i++)
+  {
+      std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), 1);
+
+      if(it != active_mav_copy.end())
+      {
+        index = std::distance(active_mav_copy.begin(), it);
+        ROS_INFO("UAV found at %d", index + 1 );
+        active_mav_copy[index] = 0;
+      }
+      else
+      {
+        ROS_WARN("No active UAVs found");
+      }
+     
+      msg.header.stamp = ros::Time::now();
+      msg.id = index;
+      msg.droneaction = 1;
+      drone_action_publisher.publish(msg);
+      ROS_INFO("Takeoff Pressed");
+      
+
+  }
+
   
-  msg.header.stamp = ros::Time::now();
-  msg.droneaction = 1;
-  drone_action_publisher.publish(msg);
-  ROS_INFO("Takeoff Pressed");
+  
+
 }
 
 int GCS::getMavId()
@@ -137,10 +170,8 @@ void GCS::armMav()
    }
 
    active_mav_publisher.publish(activeMav_msg);
-  for( auto &itr : active_mavs)
-   {
-     itr = 0;
-   }
+  
+  // call this after uploading?
 
 
 }
@@ -148,15 +179,71 @@ void GCS::armMav()
 void GCS::uploadWaypoints()
 {
   armMav();
-  //ROS_INFO("Size of messages %d", transect_list.size());
+  std::vector<int> active_mav_copy;  // copy contents of active UAVs. 
+  active_mav_copy = active_mavs;
+  int active_key = 1;
+  int index;
+  
+  int n  = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1); // number of active mavs
+  
+  std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = splitWaypoints(transect_list, n);
+   
+  int wp_size = truncated_waypoints.size();
 
-  for(auto & waypoint: transect_list)
+  ROS_INFO("Number of active Drones %d", wp_size);
+
+  for (auto& row: truncated_waypoints)
   {
-     waypoint_publisher.publish(waypoint);
+    // find first active index
+    std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), active_key);
+    if(it != active_mav_copy.end())
+    {
+      index = std::distance(active_mav_copy.begin(), it);
+      ROS_INFO("UAV found at %d", index + 1 );
+      active_mav_copy[index] = 0;
+    }
+    else
+    {
+      ROS_WARN("No active UAVs found");
+    }
+    for(auto& waypoint: row)
+    {
+      waypoint.id = index;
+      waypoint_publisher.publish(waypoint);
+      ROS_INFO("ID: %d", waypoint.id);
+    }
   }
 
   transect_list.clear();
+   for( auto &itr : active_mavs)
+    {
+      itr = 0;
+    }
 
+
+}
+
+std::vector<std::vector<gcs::Waypoint>> GCS::splitWaypoints(std::vector<gcs::Waypoint>& vec , size_t n)
+{
+
+  std::vector<std::vector<gcs::Waypoint>> rtn;
+
+  size_t length = vec.size() / n;
+  size_t remain = vec.size() % n;
+
+  size_t begin = 0;
+  size_t end = 0;
+
+  for(size_t i = 0; i < std::min(n, vec.size()); i++)
+  {
+    end += (remain > 0) ? (length + !!(remain--)) : length;
+
+    rtn.push_back(std::vector<gcs::Waypoint>(vec.begin() + begin, vec.begin() + end));
+
+    begin = end;
+  }
+
+  return rtn;
 }
 
 int GCS::getDroneSpeed()
@@ -368,42 +455,54 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
     std::vector<sensor_msgs::NavSatFix> uav_route;
     gcs::Waypoint iterated_position;
 
-    start_pos = convertTextToNavSatFix(start.toStdString());
-    end_pos = convertTextToNavSatFix(end.toStdString());
-
-    double bearing = gpsGenerator.ComputeBearing(start_pos, end_pos);
-    uav_route = gpsGenerator.returnPositionsBasedOnLocations(num_locations, bearing, start_pos, end_pos);
-    //ROS_INFO("UAV ROUTE Size %d", uav_route.size());
-    QGeoCoordinate start_coord;
-    QGeoCoordinate end_coord;
-
-    start_coord.setLatitude(start_pos.latitude);
-    start_coord.setLongitude(start_pos.longitude);
-    end_coord.setLatitude(end_pos.latitude);
-    end_coord.setLongitude(end_pos.longitude);
-
-    qml_gps_points.append(start_coord);
-
-    for(int i = 0; i < uav_route.size(); i++)
+    if(start.isEmpty() || end.isEmpty() || num_locations == 0)
     {
-        QGeoCoordinate p_single ;
-        p_single.setLatitude(uav_route[i].latitude) ;
-        p_single.setLongitude(uav_route[i].longitude);
-        qml_gps_points.append(p_single);
+      ROS_ERROR("check input arguments");
+    }
 
-        iterated_position.latitude = uav_route[i].latitude;
-        iterated_position.longitude = uav_route[i].longitude;
-        iterated_position.altitude = 10; // TODO define this later
-        iterated_position.sample = 1; // TODO Define this later
-        iterated_position.sampleTime = 20; // TODO definet his later
-        
-        transect_list.push_back(iterated_position);
+    else
+    {
+
+      start_pos = convertTextToNavSatFix(start.toStdString());
+      end_pos = convertTextToNavSatFix(end.toStdString());
+
+      double bearing = gpsGenerator.ComputeBearing(start_pos, end_pos);
+      uav_route = gpsGenerator.returnPositionsBasedOnLocations(num_locations, bearing, start_pos, end_pos);
+      //ROS_INFO("UAV ROUTE Size %d", uav_route.size());
+      QGeoCoordinate start_coord;
+      QGeoCoordinate end_coord;
+
+      start_coord.setLatitude(start_pos.latitude);
+      start_coord.setLongitude(start_pos.longitude);
+      end_coord.setLatitude(end_pos.latitude);
+      end_coord.setLongitude(end_pos.longitude);
+
+      qml_gps_points.append(start_coord);
+
+      for(int i = 0; i < uav_route.size(); i++)
+      {
+          QGeoCoordinate p_single ;
+          p_single.setLatitude(uav_route[i].latitude) ;
+          p_single.setLongitude(uav_route[i].longitude);
+          qml_gps_points.append(p_single);
+
+          iterated_position.latitude = uav_route[i].latitude;
+          iterated_position.longitude = uav_route[i].longitude;
+          iterated_position.altitude = 10; // TODO define this later
+          iterated_position.sample = 1; // TODO Define this later
+          iterated_position.sampleTime = 20; // TODO definet his later
+          
+          transect_list.push_back(iterated_position);
+
+        }
+
+        qml_gps_points.append(end_coord);
+        uav_route.clear();
+        //ROS_INFO("Size after: %d", qml_gps_points.length());
 
     }
 
-    qml_gps_points.append(end_coord);
-    uav_route.clear();
-    //ROS_INFO("Size after: %d", qml_gps_points.length());
+    
 
 }
 
@@ -414,8 +513,15 @@ void GCS:: generateDisks(QString center, double distance)
   sensor_msgs::NavSatFix center_point;
   gcs::Waypoint iterated_position;
 
+  if(center.isEmpty() || distance == 0)
+  {
+    ROS_ERROR("Check input arguments again");
+  }
 
-ROS_INFO ("Distance is %f", distance);
+  else
+  {
+
+    ROS_INFO ("Distance is %f", distance);
   center_point = convertTextToNavSatFix(center.toStdString());
   
   // bounding boxes are in a clockwise dfirction
@@ -538,6 +644,11 @@ ROS_INFO ("Distance is %f", distance);
     }
 
     ROS_INFO("Here exit");
+
+
+  }
+
+
 
 }
 
