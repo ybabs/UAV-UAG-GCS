@@ -30,55 +30,74 @@ import QtQuick.Controls.Material 2.14
             }
         }
 
-        CheckBox{
-            id: mav1checkBox
+        MavCheckBox{
             text: "MAV 1"
-            font.bold:false
-            onClicked: planner.mavId = checked
-            Component.onCompleted: checked = planner.mavId
-            Connections{
-                target: planner
-                onStatusChanged: mav1checkBox.checked = planner.mavId
+            changeOnClick: true
+            checked: mav1checked
+            onClicked: {
+                mav1checked = !mav1checked;
+                if(mav1checked)
+                {
+                    planner.mavId = 1;
+                }
+                else if (!mav1checked)
+                {
+                    planner.mavId = 10;
+                }
             }
-
         }
 
-        CheckBox{
-            id: mav2checkBox
+        MavCheckBox{
             text: "MAV 2"
-            onClicked: planner.mavId = checked
-            Component.onCompleted: checked = planner.mavId
-            Connections{
-                target: planner
-                onStatusChanged: mav2checkBox.checked = planner.mavId
+            changeOnClick: true
+            checked: mav2checked
+            onClicked: {
+                mav2checked = !mav2checked;
+                if(mav2checked)
+                {
+                    planner.mavId = 2;
+                }
+                else if(!mav2checked)
+                {
+                    planner.mavId = 20;
+                }
             }
-
         }
 
-        CheckBox{
-            id: mav3checkBox
+        MavCheckBox{
             text: "MAV 3"
-            onClicked: planner.mavId = checked
-            Component.onCompleted: checked = planner.mavId
-            Connections{
-                target: planner
-                onStatusChanged: mav3checkBox.checked = planner.mavId
+            changeOnClick: true
+            checked: mav3checked
+            onClicked: {
+                mav3checked = !mav3checked;
+                if(mav3checked)
+                {
+                    planner.mavId = 3;
+                }
+                else if(!mav3checked)
+                {
+                    planner.mavId = 30;
+                }
             }
-
         }
 
-        CheckBox{
-             id: mav4checkBox
-             text: "MAV 4"
-             onClicked: {
-                 planner.mavId = 4;
-                 checked = Qt.binding(function() {
-                     return planner.mavId;
-                 })
-             }
-
-
+        MavCheckBox{
+            text: "MAV 4"
+            changeOnClick: true
+            checked: mav4checked
+            onClicked: {
+                mav4checked = !mav4checked;
+                if(mav4checked)
+                {
+                    planner.mavId = 4;
+                }
+                else if (!mav4checked)
+                {
+                    planner.mavId = 40;
+                }
+            }
         }
+
 
         Button{
             id: setMavControlButton
@@ -86,49 +105,26 @@ import QtQuick.Controls.Material 2.14
             text: "Upload"
             onClicked: {
 
-                if(mav1checked.status == checked)
-                {
-                    planner.mavId = 1
-                    //  planner.armMav()
-                }
-                if(mav2checked.status == checked)
-                {
-                    planner.mavId = 2
-                }
-                if(mav3checked.status == checked)
-                {
-                    planner.mavId = 3
-                }
-                if(mav4checked.status == checked)
-                {
-                    planner.mavId = 4
-                }
+                // if(mav1checked.status == checked)
+                // {
+                //     planner.mavId = 1
+                //     //  planner.armMav()
+                // }
+                // if(mav2checked.status == checked)
+                // {
+                //     planner.mavId = 2
+                // }
+                // if(mav3checked.status == checked)
+                // {
+                //     planner.mavId = 3
+                // }
+                // if(mav4checked.status == checked)
+                // {
+                //     planner.mavId = 4
+                // }
                 
                 planner.uploadWaypoints()
             }
 
         }
-
-        Button{
-            id:setAllControlButton
-            text:"Control All"
-            onClicked: {
-
-                mav1checkBox.checked = true;
-                mav2checkBox.checked = true;
-                mav3checkBox.checked = true;
-                mav4checkBox.checked = true;
-                planner.mavId = 255;
-               
-                 planner.uploadWaypoints()
-
-                // set Logic here
-
-
-
-            }
-
-        }
-
     }
-
