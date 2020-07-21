@@ -103,28 +103,12 @@ import QtQuick.Controls.Material 2.14
             id: setMavControlButton
             highlighted:true
             text: "Upload"
-            onClicked: {
-
-                // if(mav1checked.status == checked)
-                // {
-                //     planner.mavId = 1
-                //     //  planner.armMav()
-                // }
-                // if(mav2checked.status == checked)
-                // {
-                //     planner.mavId = 2
-                // }
-                // if(mav3checked.status == checked)
-                // {
-                //     planner.mavId = 3
-                // }
-                // if(mav4checked.status == checked)
-                // {
-                //     planner.mavId = 4
-                // }
-                
+            onClicked: {                
                 planner.uploadWaypoints()
             }
 
         }
     }
+
+
+//52.755928,-1.245679

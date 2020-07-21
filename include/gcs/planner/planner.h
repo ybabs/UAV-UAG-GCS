@@ -40,7 +40,7 @@ class GCS: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int getDroneSpeed READ getDroneSpeed WRITE setDroneSpeed NOTIFY speedSliderChanged )
+    Q_PROPERTY(int droneSpeed READ getDroneSpeed WRITE setDroneSpeed NOTIFY speedSliderChanged )
     Q_PROPERTY(int getHoverFlag READ getHoverFlag WRITE setHoverFlag NOTIFY hoverFlagSet)
     Q_PROPERTY(int getRthFlag READ getRthFlag WRITE setRthFlag NOTIFY rthFlagSet)
     Q_PROPERTY(int getLandFlag READ getLandFlag WRITE setLandFlag NOTIFY landFlagSet)

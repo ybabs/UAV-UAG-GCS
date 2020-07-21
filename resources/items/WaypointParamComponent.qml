@@ -21,7 +21,7 @@ Popup{
             Layout.fillWidth: true
             placeholderText: "Enter Altitude"
             validator: IntValidator{bottom: 1; top: 100}
-            onEditingFinished: planner.getAltitude = altitudeText.text
+            onEditingFinished: planner.altitude = altitudeText.text
         }
 
         CheckBox {
@@ -30,11 +30,11 @@ Popup{
              onClicked:
              {
                  if(checked ){
-                     planner.getSamplingFlag = 1
+                     planner.sampleFlag = 1
                  }
 
                  else{
-                     planner.getSamplingFlag = 0
+                     planner.sampleFlag = 0
                  }
              }
          }
@@ -48,7 +48,7 @@ Popup{
              Layout.fillWidth:true
              placeholderText: "Enter Sampling Time"
              focus:true
-             onEditingFinished: planner.getSamplingTime = samplingText.text
+             onEditingFinished: planner.samplingTime = samplingText.text
             inputMethodHints: Qt.ImhDigitsOnly
          }
 
@@ -60,8 +60,8 @@ Popup{
                     text: "OK"
                     onClicked: {
                         planner.addWaypoint(waypoint.center.latitude, waypoint.center.longitude,
-                                            planner.getAltitude, planner.getSamplingFlag,
-                                            planner.getSamplingTime)
+                                            planner.altitude, planner.sampleFlag,
+                                            planner.samplingTime)
                         okButtonClicked()
                         missionPopup.close();
                     }

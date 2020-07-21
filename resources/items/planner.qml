@@ -141,7 +141,7 @@ ApplicationWindow {
              text: setButtonText() 
             onClicked:{
                     isPlay = !isPlay
-                    planner.getPlayPause = isPlay          
+                    planner.missionStatusFlag = isPlay          
             }
         
         }

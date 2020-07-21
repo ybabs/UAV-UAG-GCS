@@ -154,7 +154,22 @@ ToolBar{
             text:"Land"
             onClicked: planner.land()
         } 
-        
+
+        Button{
+            id:rthButton
+            text:"RTH"
+            onClicked:planner.goHome()
+        }
+
+        Button{
+            id:pauseButton
+            text:setButtonText()
+            onClicked:{
+                inPlay = !inPlay
+                planner.missionStatusFlag = inPlay
+            }
+        }
+
         CheckBox{
             id:swarmCheckBox
             text: "Swarm Mode"

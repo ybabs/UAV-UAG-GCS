@@ -12,9 +12,9 @@ RowLayout {
              text: qsTr("Hover")
              onClicked:
              {
-                 planner.getHoverFlag = 1
-                 planner.getRthFlag = 0
-                 planner.getLandFlag = 0
+                 planner.hoverFlag = 1
+                 planner.rthFlag = 0
+                 planner.landFlag = 0
              }
         }
     RadioButton {
@@ -22,9 +22,9 @@ RowLayout {
             text: qsTr("RTH")
             onClicked:
              {
-                 planner.getHoverFlag = 0
-                 planner.getRthFlag = 1
-                 planner.getLandFlag = 0
+                 planner.hoverFlag = 0
+                 planner.rthFlag = 1
+                 planner.landFlag = 0
              }
         }
     RadioButton {
@@ -32,9 +32,9 @@ RowLayout {
             text: qsTr("Land")
             onClicked:
              {
-                 planner.getHoverFlag = 0
-                 planner.getRthFlag = 0
-                 planner.getLandFlag = 1
+                 planner.hoverFlag = 0
+                 planner.rthFlag = 0
+                 planner.landFlag = 1
              }
         }
 }
