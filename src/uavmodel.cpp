@@ -10,6 +10,18 @@ UavModel::UavModel(QObject *parent):
           batteries(4,0),
           uav_id(0)
 {
+
+     // Spin up ros node handle
+     QTimer * ros_timer = new QTimer(this);
+     connect(ros_timer, SIGNAL(timeout()), this, SLOT(SpinLoop()));
+     ros_timer->start(0);
+
+    m100_battery_subscriber = nh.subscribe("/m100/battery_state", 10, &UavModel::M100batteryStateCallback, this);
+    m100_gps_subscriber = nh.subscribe("/m100/gps_position", 10, &UavModel::M100gpsCallback, this);
+    n3_battery_subscriber = nh.subscribe("n3/battery_state", 10, &UavModel::N3batteryStateCallback, this);
+    n3_gps_subscriber = nh.subscribe("n3/gps_position", 10, &UavModel::N3gpsCallback, this);
+
+
     connected_clients = 4;
     QHash<int, QByteArray> roles;
     roles = roleNames();
@@ -23,8 +35,15 @@ UavModel::UavModel(QObject *parent):
         m_uavModel->appendRow(item);
     }
 
-    ROS_INFO("Constructor UAV Model");
+   
 
+
+}
+
+
+void UavModel::SpinLoop()
+{
+    ros::spinOnce();
 }
 
 
@@ -33,53 +52,46 @@ QObject *UavModel::uavModel() const
     return m_uavModel;
 }
 
-void UavModel::batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg)
+void UavModel::M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg)
+{
+  double battery = msg->percentage;
+  batteries[0] = battery;
+  //ROS_INFO("Battery");
+}
+
+void UavModel::N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg)
 {
   double battery = msg->voltage;
+  batteries[1] = battery;
+  
 }
 
 
-void UavModel::gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
+void UavModel::N3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
+    QGeoCoordinate uav_pos;
+    uav_pos.setLatitude(msg->latitude);
+    uav_pos.setLongitude(msg->longitude);
+    uav_pos.setAltitude(msg->altitude);
+
+    uav_positions[0] = uav_pos;
+    
+}
+
+void UavModel::M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
+{
+    QGeoCoordinate uav_pos;
+    uav_pos.setLatitude(msg->latitude);
+    uav_pos.setLongitude(msg->longitude);
+    uav_pos.setAltitude(msg->altitude);
+
+    uav_positions[1] = uav_pos;
  
 
 }
 
 void UavModel::updateModelData()
 {
-   // connected_clients = 4; // get this data from the number of Uavs connected to the network
-    batteries[0]= 50.2;
-    batteries[1] = 54.6;
-    batteries[2] = 30;
-    batteries[3] = 50;
-
-    QGeoCoordinate uav_pos1;
-    QGeoCoordinate uav_pos2;
-    QGeoCoordinate uav_pos3;
-    QGeoCoordinate uav_pos4;
-
-    uav_pos1.setLatitude(52.75591 );
-    uav_pos1.setLongitude(-1.246310 );
-    uav_pos1.setAltitude(5);
-    
-    uav_pos2.setLatitude(52.755934);
-    uav_pos2.setLongitude(-1.247107);
-    uav_pos2.setAltitude(5);
-
-    uav_pos3.setLatitude(52.756151 );
-    uav_pos3.setLongitude(-1.248142 );
-    uav_pos3.setAltitude(5);
-        
-    uav_pos4.setLatitude(52.755872 );
-    uav_pos4.setLongitude(-1.246683 );
-    uav_pos4.setAltitude(5);
-
-    uav_positions[0] = uav_pos1;
-    uav_positions[1] = uav_pos2;
-    uav_positions[2] = uav_pos3;
-    uav_positions[3] = uav_pos4;
-
-    //ROS_INFO("This is running");
      
     for(int i = 0; i < connected_clients; i++)
     {

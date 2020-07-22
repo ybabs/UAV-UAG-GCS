@@ -41,13 +41,13 @@ class GCS: public QObject
     Q_OBJECT
 
     Q_PROPERTY(int droneSpeed READ getDroneSpeed WRITE setDroneSpeed NOTIFY speedSliderChanged )
-    Q_PROPERTY(int getHoverFlag READ getHoverFlag WRITE setHoverFlag NOTIFY hoverFlagSet)
-    Q_PROPERTY(int getRthFlag READ getRthFlag WRITE setRthFlag NOTIFY rthFlagSet)
-    Q_PROPERTY(int getLandFlag READ getLandFlag WRITE setLandFlag NOTIFY landFlagSet)
-    Q_PROPERTY(float getAltitude READ getAltitude WRITE setAltitude NOTIFY altitudeValueChanged )
-    Q_PROPERTY(float getSamplingTime READ getSamplingTime WRITE setSamplingTime NOTIFY samplingTimeSet)
-    Q_PROPERTY(int getSamplingFlag READ getSamplingFlag WRITE setSamplingFlag NOTIFY samplingFlagSet )
-    Q_PROPERTY(int getPlayPause READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
+    Q_PROPERTY(int hoverFlag READ getHoverFlag WRITE setHoverFlag NOTIFY hoverFlagSet)
+    Q_PROPERTY(int rthFlag READ getRthFlag WRITE setRthFlag NOTIFY rthFlagSet)
+    Q_PROPERTY(int landFlag READ getLandFlag WRITE setLandFlag NOTIFY landFlagSet)
+    Q_PROPERTY(float altitude READ getAltitude WRITE setAltitude NOTIFY altitudeValueChanged )
+    Q_PROPERTY(float samplingTime READ getSamplingTime WRITE setSamplingTime NOTIFY samplingTimeSet)
+    Q_PROPERTY(int sampleFlag READ getSamplingFlag WRITE setSamplingFlag NOTIFY samplingFlagSet )
+    Q_PROPERTY(int missionStatusFlag READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
     Q_PROPERTY(int mavId READ getMavId WRITE setMavId NOTIFY mavIdSet)
     Q_PROPERTY(QVariantList trackpoints READ getPointVector)
     
@@ -96,6 +96,7 @@ class GCS: public QObject
     QVariantList getPointVector();
     sensor_msgs::NavSatFix convertTextToNavSatFix(std::string input_string);
     QGeoCoordinate convertNavSatFixToQGeoCoordinate(sensor_msgs::NavSatFix &input_coord);
+
 
     signals:
         void speedSliderChanged();

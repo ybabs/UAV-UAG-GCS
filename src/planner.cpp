@@ -17,8 +17,6 @@ GCS::~GCS()
     
 }
 
-
-
 void GCS::initPublishers()
 {
 
