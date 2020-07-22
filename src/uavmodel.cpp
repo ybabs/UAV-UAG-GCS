@@ -62,7 +62,12 @@ void UavModel::M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPt
 void UavModel::N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg)
 {
   double battery = msg->voltage;
-  batteries[1] = battery;
+  double battery_percent = battery * 100;
+  // based on a 6S battery. 
+  // Low votage per cell = 3.6V  3.6  * 6 * 100 = 2160
+  //Fully charged  = 4.2V. 4.2 * 6 * 100 = 2520; 
+  double value = ((battery_percent - 2160) / (2520 - 2160)) * 100; 
+  batteries[1] = value;
   
 }
 
