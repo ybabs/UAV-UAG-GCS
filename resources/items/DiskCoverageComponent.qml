@@ -43,13 +43,37 @@ Popup
             inputMethodHints: Qt.ImhDigitsOnly
          }
 
+         TextField{
+             id: samplingTimeText
+             validator: IntValidator{
+                 bottom: 1
+                 top: 800
+             }
+             Layout.fillWidth:true
+             placeholderText: "Enter Sampling Time"
+             focus:true
+            inputMethodHints: Qt.ImhDigitsOnly
+         }
+         TextField{
+             id:droneSpeedText
+             validator: IntValidator{
+                 bottom: 1
+                 top: 15
+             }
+             Layout.fillWidth:true
+             placeholderText: "Enter Speed"
+             focus:true
+             onEditingFinished: planner.droneSpeed = droneSpeedText.text
+            inputMethodHints: Qt.ImhDigitsOnly
+         }
+
          GroupBox{
              RowLayout{
                  Button{
                      id:okButton
                      text: "OK"
                      onClicked:{
-                         planner.generateDisks(centerSearchText.text, centerDistanceText.text)
+                         planner.generateDisks(centerSearchText.text, centerDistanceText.text, samplingTimeText.text)
 
                          for (var i in planner.trackpoints){
                              var p = planner.trackpoints[i];

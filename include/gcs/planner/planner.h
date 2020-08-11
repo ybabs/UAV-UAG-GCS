@@ -40,7 +40,7 @@ class GCS: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int droneSpeed READ getDroneSpeed WRITE setDroneSpeed NOTIFY speedSliderChanged )
+    Q_PROPERTY(int droneSpeed READ getDroneSpeed WRITE setDroneSpeed NOTIFY speedTextChanged )
     Q_PROPERTY(int hoverFlag READ getHoverFlag WRITE setHoverFlag NOTIFY hoverFlagSet)
     Q_PROPERTY(int rthFlag READ getRthFlag WRITE setRthFlag NOTIFY rthFlagSet)
     Q_PROPERTY(int landFlag READ getLandFlag WRITE setLandFlag NOTIFY landFlagSet)
@@ -99,7 +99,7 @@ class GCS: public QObject
 
 
     signals:
-        void speedSliderChanged();
+        void speedTextChanged();
         void hoverFlagSet();
         void rthFlagSet();
         void landFlagSet();
@@ -119,9 +119,10 @@ class GCS: public QObject
      void uploadWaypoints();
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
      void addGeneratedWaypoints(QString start, QString end, int num_locations);
-     void generateDisks(QString center, double distance);
+     void generateDisks(QString center, double distance, double samplingTime);
      std::vector<std::vector<gcs::Waypoint>> splitWaypoints(std::vector<gcs::Waypoint> &vec , size_t n);
-    
+     void publishMessage(gcs::Action &msg, int action);
+     void publishMessage(gcs::Waypoint &msg);
 
 
 

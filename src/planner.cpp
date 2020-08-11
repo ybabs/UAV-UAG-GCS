@@ -32,87 +32,29 @@ void GCS::land()
 {
   armMav();
   gcs::Action msg;
+  
+  publishMessage(msg, 2);
+  ROS_INFO("Landing");
 
-
-  std::vector<int> active_mav_copy;  // copy contents of active UAVs. 
-  active_mav_copy = active_mavs;
-  int index;
-
-
-  // find active UAVs
-  int n = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1);
-  ROS_INFO("Active Drones %d", n);
-
-   for(int i = 0; i < n; i++)
-    {
-        std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), 1);
-
-        if(it != active_mav_copy.end())
-        {
-          index = std::distance(active_mav_copy.begin(), it);
-          ROS_INFO("UAV %d activated", index + 1 );
-          active_mav_copy[index] = 0;
-        }
-        else
-        {
-          ROS_WARN("No active UAVs found");
-        }
-
-        msg.header.stamp = ros::Time::now();
-        msg.id = index;
-        msg.droneaction = 2;
-        drone_action_publisher.publish(msg);
-        ROS_INFO("Land Button Pressed");
-
-    }
 }
 
 void GCS::goHome()
 {
   armMav();
   gcs::Action msg;
-
-  std::vector<int> active_mav_copy;  // copy contents of active UAVs. 
-  active_mav_copy = active_mavs;
-  int index;
-  // find active UAVs
-  int n = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1);
-  ROS_INFO("Active Drones %d", n);
-
-   for(int i = 0; i < n; i++)
-  {
-      std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), 1);
-
-      if(it != active_mav_copy.end())
-      {
-        index = std::distance(active_mav_copy.begin(), it);
-        ROS_INFO("UAV %d activated", index + 1 );
-        active_mav_copy[index] = 0;
-      }
-      else
-      {
-        ROS_WARN("No active UAVs found");
-      }
-
-        msg.header.stamp = ros::Time::now();
-        msg.id = index;
-        msg.droneaction = 3;
-        drone_action_publisher.publish(msg);
-        ROS_INFO("Go Home pressed");
-  }
+  
+  publishMessage(msg, 3);
+  
 }
 
-void GCS::takeoff()
+void GCS::publishMessage(gcs::Action &msg, int action)
 {
-  armMav();
-  gcs::Action msg;
   std::vector<int> active_mav_copy;  // copy contents of active UAVs. 
   active_mav_copy = active_mavs;
   int index;
 
-  // find active UAVs
-  int n = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1);
-  ROS_INFO("Active Drones %d", n);
+   int n = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1);
+   ROS_INFO("Active Drones %d", n);
   for(int i = 0; i < n; i++)
   {
       std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), 1);
@@ -130,10 +72,52 @@ void GCS::takeoff()
      
       msg.header.stamp = ros::Time::now();
       msg.id = index;
-      msg.droneaction = 1;
+      msg.droneaction = action;
       drone_action_publisher.publish(msg);
-      ROS_INFO("Drone(s) Taking off");  
   } 
+
+}
+
+void GCS:: publishMessage(gcs::Waypoint &msg)
+{
+  std::vector<int> active_mav_copy;  // copy contents of active UAVs. 
+  active_mav_copy = active_mavs;
+  int index;
+
+  int n = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1);
+  ROS_INFO("Active Drones %d", n);
+  for(int i = 0; i < n; i++)
+  {
+      std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), 1);
+
+      if(it != active_mav_copy.end())
+      {
+        index = std::distance(active_mav_copy.begin(), it);
+        ROS_INFO("UAV %d activated", index + 1 );
+        active_mav_copy[index] = 0;
+      }
+      else
+      {
+        ROS_WARN("No active UAVs found");
+      }
+     
+      msg.id = index;
+
+       waypoint_publisher.publish(msg);   
+  } 
+
+
+}
+
+
+
+void GCS::takeoff()
+{
+  armMav();
+  gcs::Action msg;
+
+  publishMessage(msg, 1);
+
 }
 
 int GCS::getMavId()
@@ -282,6 +266,7 @@ void GCS::uploadWaypoints()
         }
         for(auto& waypoint: row)
         {
+          //TODO Sort waypoint from distance here. 
           waypoint.id = index;
           waypoint_publisher.publish(waypoint);
           ROS_INFO("ID: %d, Lat: %f, Lon: %f", waypoint.id, waypoint.latitude, waypoint.longitude);
@@ -289,10 +274,10 @@ void GCS::uploadWaypoints()
       }
 
       transect_list.clear();
-      for( auto &itr : active_mavs)
-        {
-          itr = 0;
-        }
+      // for( auto &itr : active_mavs)
+      //   {
+      //     itr = 0;
+      //   }
 
   }
 
@@ -335,7 +320,7 @@ void GCS::setDroneSpeed(int speed)
   if(uav_speed != speed)
   {
     uav_speed = speed;
-    speedSliderChanged();
+    speedTextChanged();
   }
 
 }
@@ -388,7 +373,8 @@ void GCS::setMissionParams()
 {
   gcs::Missionparameters msg;
   msg.header.stamp = ros::Time::now();
-  msg.uavSpeed = uav_speed;
+ // msg.uavSpeed = uav_speed;
+  msg.uavSpeed = 5;
   
   if(hover_flag == 1 & rth_flag == 0 & land_flag == 0)
   {
@@ -467,28 +453,26 @@ float GCS::getSamplingTime()
 
 void GCS::startMission()
 {
+  armMav();
   gcs::Action msg;
-  msg.header.stamp = ros::Time::now();
-  msg.droneaction = 4;
-
   // Set and publish mission parameters
   setMissionParams();
-  drone_action_publisher.publish(msg);
+  publishMessage(msg, 4);
   ROS_INFO("Starting Mission");
 }
 
 void GCS::abortMission()
 {
+  armMav();
   gcs::Action msg;
-  msg.header.stamp = ros::Time::now();
-  msg.droneaction = 5;
-  drone_action_publisher.publish(msg);
+  publishMessage(msg, 5);
   ROS_WARN("Aborting Mission");
   
 }
 
 void GCS::addWaypoint(double lat, double lon,  float alt, int sample, float sampleTime)
 {
+  armMav();
 
   gcs::Waypoint msg;
   msg.header.stamp = ros::Time::now();
@@ -498,7 +482,7 @@ void GCS::addWaypoint(double lat, double lon,  float alt, int sample, float samp
   msg.sample = sample;
   msg.sampleTime = sampleTime;
 
-  waypoint_publisher.publish(msg);   
+  publishMessage(msg);
   ROS_INFO("Waypoint Added:, Lat: %f, Lon: %f, Alt: %f , Sample: %d, SampleTime: %f",  lat, lon, alt,
                                                                                  sample, sampleTime);
    
@@ -583,7 +567,7 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
 
 }
 
-void GCS:: generateDisks(QString center, double distance)
+void GCS:: generateDisks(QString center, double distance, double samplingTime)
 {
   qml_gps_points.clear();
   QVector<QGeoCoordinate>bounding_box;
@@ -619,7 +603,8 @@ void GCS:: generateDisks(QString center, double distance)
   qml_gps_points.push_back(q_bottom_left);
 
   // find the distance between two points to determine the length of the square
-  double l = gpsGenerator.GetPathLength(top_right, bottom_right);
+  double l = gpsGenerator.GetPathLength(bottom_left, bottom_right);
+  ROS_INFO("DIstance: %f", l);
   int arr_size;
 
   // determine range of hydrophone //TODO from experiments
@@ -645,10 +630,12 @@ void GCS:: generateDisks(QString center, double distance)
     {
         double curr_x  = x_init + (2*i - 1) * d/2;
         double curr_y = y_init + (2*j - 1) * d/2;
+        ROS_INFO("X: %f" "Y: %f", curr_x, curr_y);
 
         points.push_back(std::make_pair(curr_x, curr_y));
     }
   }
+
 
    int length = points.size();
 
@@ -704,7 +691,7 @@ void GCS:: generateDisks(QString center, double distance)
         iterated_position.longitude = uav_route[i].longitude;
         iterated_position.altitude = 10; // TODO define this later
         iterated_position.sample = 1; // TODO Define this later
-        iterated_position.sampleTime = 20; // TODO definet his later
+        iterated_position.sampleTime = samplingTime; // TODO definet his later
         
         transect_list.push_back(iterated_position);
 
