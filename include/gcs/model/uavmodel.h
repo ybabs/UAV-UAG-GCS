@@ -39,6 +39,7 @@ public:
     void M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
     void N3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
+    
     //void uav4gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     //void uav4batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
    // void uav3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
@@ -49,6 +50,7 @@ public:
 public Q_SLOTS: // slots
     void updateModelData();
     void SpinLoop();
+    std::vector<QGeoCoordinate> getUavPositions();
 private:
     ros::NodeHandle nh;
     QStandardItemModel* m_uavModel;

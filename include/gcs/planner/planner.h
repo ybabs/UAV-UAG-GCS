@@ -28,6 +28,7 @@
 #include <tuple>
 #include <QDebug>
 #include "gcs/planner/waypointgenerator.h"
+#include "gcs/model/uavmodel.h"
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -123,6 +124,7 @@ class GCS: public QObject
      std::vector<std::vector<gcs::Waypoint>> splitWaypoints(std::vector<gcs::Waypoint> &vec , size_t n);
      void publishMessage(gcs::Action &msg, int action);
      void publishMessage(gcs::Waypoint &msg);
+     std::vector<gcs::Way
 
 
 
@@ -153,6 +155,7 @@ class GCS: public QObject
     std::vector<int> active_mavs;
     
     GpsUtils gpsGenerator; 
+    UavModel model;
       
 
 };

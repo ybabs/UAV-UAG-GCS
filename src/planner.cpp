@@ -265,11 +265,11 @@ void GCS::uploadWaypoints()
           ROS_WARN("No active UAVs found");
         }
         for(auto& waypoint: row)
-        {
-          //TODO Sort waypoint from distance here. 
+        {          
           waypoint.id = index;
           waypoint_publisher.publish(waypoint);
           ROS_INFO("ID: %d, Lat: %f, Lon: %f", waypoint.id, waypoint.latitude, waypoint.longitude);
+          ros::Duration(0.001).sleep();
         }
       }
 
@@ -305,6 +305,22 @@ std::vector<std::vector<gcs::Waypoint>> GCS::splitWaypoints(std::vector<gcs::Way
     rtn.push_back(std::vector<gcs::Waypoint>(vec.begin() + begin, vec.begin() + end));
 
     begin = end;
+  }
+
+  std::vector<QGeoCoordindate> uav_home = model.getUavPositions();
+  double distance;
+  double min_distance;
+
+
+  // Sort Waypoints according to distance. 
+  for(auto i = rtn.begin(); i != rtn.end(); ++i)
+  {
+    for(auto j = i.begin(); j !=i.end(); ++j)
+    {
+      min_distance = gpsGenerator.GetPathLength()
+      
+
+    }
   }
 
   return rtn;
