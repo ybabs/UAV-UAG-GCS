@@ -95,8 +95,8 @@ class GCS: public QObject
     void initPublishers();
     void setMissionParams();
     QVariantList getPointVector();
-    sensor_msgs::NavSatFix convertTextToNavSatFix(std::string input_string);
-    QGeoCoordinate convertNavSatFixToQGeoCoordinate(sensor_msgs::NavSatFix &input_coord);
+    gcs::Waypoint convertTextToWaypoint(std::string input_string);
+    QGeoCoordinate convertWaypointToQGeoCoordinate(gcs::Waypoint &input_coord);
 
 
     signals:
@@ -152,7 +152,7 @@ class GCS: public QObject
     ros::Publisher active_mav_publisher;
 
     std::vector<gcs::Waypoint> transect_list;
-    QVector<QGeoCoordinate> qml_gps_points;
+    QVector<QGeoCoordinate> qml_gps_points; // used to store GPS waypoints which are displayed on the UI
     std::vector<int> active_mavs;
     
     GpsUtils gpsGenerator; 

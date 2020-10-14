@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include "gcs/utils/utils.h"
+#include "gcs/Waypoint.h"
 #include <sensor_msgs/NavSatFix.h>
 #include <random>
 
@@ -18,27 +19,28 @@ class GpsUtils
 {
 public:
     GpsUtils();
-    double GetPathLength(sensor_msgs::NavSatFix start_coord, sensor_msgs::NavSatFix end_coord);
-    sensor_msgs::NavSatFix GetDestinationCoordinate(sensor_msgs::NavSatFix start_coord, double azimuth, double distance);
-    double ComputeBearing(sensor_msgs::NavSatFix start_point, sensor_msgs::NavSatFix end_point);
-    std::vector<sensor_msgs::NavSatFix> returnInterpolatedPoints(int  distance, double bearing, sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end);
-    std::vector<sensor_msgs::NavSatFix> returnPositionsBasedOnLocations(int locations, double bearing, sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end);
-    void swap(std::vector<sensor_msgs::NavSatFix>&gps_list, int i, int j);
+    double GetPathLength(gcs::Waypoint start_coord, gcs::Waypoint end_coord);
+    gcs::Waypoint GetDestinationCoordinate(gcs::Waypoint start_coord, double azimuth, double distance);
+    double ComputeBearing(gcs::Waypoint start_point, gcs::Waypoint end_point);
+    std::vector<gcs::Waypoint> returnInterpolatedPoints(int  distance, double bearing, gcs::Waypoint start, gcs::Waypoint end);
+    std::vector<gcs::Waypoint> returnPositionsBasedOnLocations(int locations, double bearing, gcs::Waypoint start, gcs::Waypoint end);
+    void swap(std::vector<gcs::Waypoint>&gps_list, int i, int j);
     void swap(std::vector<int>&route, int i, int j);
     void shuffle(std::vector<int>&route);
-    double GetRouteDistance(std::vector<sensor_msgs::NavSatFix>&gps_list);
-    double GetRouteDistance(std::vector<sensor_msgs::NavSatFix>&gps_list, std::vector<int>&order);
+    double GetRouteDistance(std::vector<gcs::Waypoint>&gps_list);
+    double GetRouteDistance(std::vector<gcs::Waypoint>&gps_list, std::vector<int>&order);
     void normalizeFitness();
     void computeFitness();
     void nextGeneration();
-    void initialiseGA(std::vector<sensor_msgs::NavSatFix>& waypoints, int MAX_POP);
+    std::vector<int> getBestOrder();
+    void initialiseGA(std::vector<gcs::Waypoint>& waypoints, int MAX_POP);
     std::vector<int> pickRandomParent(std::vector<std::vector<int> >& population, std::vector<float>& fitness);
     void mutate(std::vector<int> &order, float mutationRate);
     std::vector<int> crossover(std::vector<int> &parentA, std::vector<int> &parentB);
 
 private:
-    std::vector<sensor_msgs::NavSatFix> route;
-    std::vector<sensor_msgs::NavSatFix> waypoints;
+    std::vector<gcs::Waypoint> route;
+    std::vector<gcs::Waypoint> waypoints;
     std::vector<float> fitness;
     double recordDistance;
     std::vector<int>bestOrder;

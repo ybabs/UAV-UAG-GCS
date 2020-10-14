@@ -10,9 +10,9 @@ GpsUtils::GpsUtils()
 /// @param start_coord Start GPS Position
 /// @param end_coord  End GPS Position
 /// @returns distance between both coordinates
-double GpsUtils::GetPathLength(sensor_msgs::NavSatFix start_coord, sensor_msgs::NavSatFix end_coord)
+double GpsUtils::GetPathLength(gcs::Waypoint start_coord, gcs::Waypoint end_coord)
 {
-
+    
     double lat1_rad = DegToRad(start_coord.latitude);
     double lat2_rad = DegToRad(end_coord.latitude);
     double delta_lat_deg = end_coord.latitude - start_coord.latitude;
@@ -32,7 +32,7 @@ double GpsUtils::GetPathLength(sensor_msgs::NavSatFix start_coord, sensor_msgs::
 /// @param azimuth bearing angle in degrees
 /// @param distance from starting position
 /// @returns destination GPS coordinate
-sensor_msgs::NavSatFix GpsUtils::GetDestinationCoordinate(sensor_msgs::NavSatFix start_coord, double azimuth, double distance)
+gcs::Waypoint GpsUtils::GetDestinationCoordinate(gcs::Waypoint start_coord, double azimuth, double distance)
 {
     double radius_km = C_EARTH/1000; // Earth's Radius in Km
     double bearing = DegToRad(azimuth); // degrees converted to Rad
@@ -45,7 +45,7 @@ sensor_msgs::NavSatFix GpsUtils::GetDestinationCoordinate(sensor_msgs::NavSatFix
     lat2 = RadToDeg(lat2);
     lon2 = RadToDeg(lon2);
 
-    sensor_msgs::NavSatFix destination;
+    gcs::Waypoint destination;
 
     destination.latitude = lat2;
     destination.longitude  = lon2;
@@ -58,7 +58,7 @@ sensor_msgs::NavSatFix GpsUtils::GetDestinationCoordinate(sensor_msgs::NavSatFix
 /// @param start_point starting GPS location
 /// @param end_point destination GPS location
 /// @returns Bearing between start point and end point
-double GpsUtils::ComputeBearing(sensor_msgs::NavSatFix start_point, sensor_msgs::NavSatFix end_point)
+double GpsUtils::ComputeBearing(gcs::Waypoint start_point, gcs::Waypoint end_point)
 {
     double start_lat = DegToRad(start_point.latitude);
     double start_lon = DegToRad(start_point.longitude);
@@ -91,9 +91,9 @@ double GpsUtils::ComputeBearing(sensor_msgs::NavSatFix start_point, sensor_msgs:
 /// @param start Start GPS position
 /// @param end Final GPS position
 /// @returns vector containing GPS waypoints between start and end GPS coordinates
-std::vector<sensor_msgs::NavSatFix>GpsUtils::returnInterpolatedPoints(int interval, double bearing, sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end)
+std::vector<gcs::Waypoint>GpsUtils::returnInterpolatedPoints(int interval, double bearing, gcs::Waypoint start, gcs::Waypoint end)
 {
-     std::vector<sensor_msgs::NavSatFix> route;
+     std::vector<gcs::Waypoint> route;
     double d = GetPathLength(start, end);
     std::cout<< "Distance: " << d << std::endl;
     int distance;
@@ -106,7 +106,7 @@ std::vector<sensor_msgs::NavSatFix>GpsUtils::returnInterpolatedPoints(int interv
     route.push_back(start);
     for (int i = 0; i < distance; i++)
     {
-        sensor_msgs::NavSatFix new_pos = GetDestinationCoordinate(start, bearing, distance_covered);
+        gcs::Waypoint new_pos = GetDestinationCoordinate(start, bearing, distance_covered);
         distance_covered+=interval;
         route.push_back(new_pos);
     }
@@ -122,9 +122,9 @@ std::vector<sensor_msgs::NavSatFix>GpsUtils::returnInterpolatedPoints(int interv
 /// @param start starting GPS coordinates
 /// @param end  Final GPS coordinates
 /// @returns a vector containing intermediate locations.
-std::vector<sensor_msgs::NavSatFix>GpsUtils::returnPositionsBasedOnLocations(int loc_count, double bearing, sensor_msgs::NavSatFix start, sensor_msgs::NavSatFix end)
+std::vector<gcs::Waypoint>GpsUtils::returnPositionsBasedOnLocations(int loc_count, double bearing, gcs::Waypoint start, gcs::Waypoint end)
 {
-    std::vector<sensor_msgs::NavSatFix> route;
+    std::vector<gcs::Waypoint> route;
     double total_distance = GetPathLength(start, end);
     double dist = total_distance / loc_count; // return number of points.
     int interval = (int) dist;
@@ -132,7 +132,7 @@ std::vector<sensor_msgs::NavSatFix>GpsUtils::returnPositionsBasedOnLocations(int
 
     for(int i = 0; i < loc_count; i++)
     {
-        sensor_msgs::NavSatFix new_pos = GetDestinationCoordinate(start, bearing, counter);
+        gcs::Waypoint new_pos = GetDestinationCoordinate(start, bearing, counter);
         counter+=interval;
         route.push_back(new_pos);
     }
@@ -144,9 +144,9 @@ std::vector<sensor_msgs::NavSatFix>GpsUtils::returnPositionsBasedOnLocations(int
 /// @param i First position to be swapped
 /// @param j second position to be swapped
 /// @returns nothing
-void GpsUtils::swap(std::vector<sensor_msgs::NavSatFix> &gps_list, int i, int j)
+void GpsUtils::swap(std::vector<gcs::Waypoint> &gps_list, int i, int j)
 {
-    sensor_msgs::NavSatFix temp = gps_list[i];
+    gcs::Waypoint temp = gps_list[i];
     gps_list[i] = gps_list[j];
     gps_list[j] = temp;
 }
@@ -154,7 +154,7 @@ void GpsUtils::swap(std::vector<sensor_msgs::NavSatFix> &gps_list, int i, int j)
 /// returns the distance between GPS coordinates in a vector
 /// @param gps_list vector containing GPS positions
 /// @returns distance between GPS positions in the vector
-double GpsUtils::GetRouteDistance(std::vector<sensor_msgs::NavSatFix> &gps_list)
+double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint> &gps_list)
 {
    double sum = 0;
    for(std::size_t i = 0; i < gps_list.size()-1; i++)
@@ -196,15 +196,15 @@ double GpsUtils::GetRouteDistance(std::vector<sensor_msgs::NavSatFix> &gps_list)
  /// @param gps_list List of GPS positions to be shuffled
  /// @param order list of order of gps routes to be shuffled
  /// @returns distance of each list of GPS positions based on order
- double GpsUtils::GetRouteDistance(std::vector<sensor_msgs::NavSatFix>&gps_list, std::vector<int>&order)
+ double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint>&gps_list, std::vector<int>&order)
  {
      double sum = 0;
      for(std::size_t i = 0; i < order.size()-1; i++)
      {
          int waypointAIndex = order[i];
-         sensor_msgs::NavSatFix waypointA = gps_list[waypointAIndex];
+         gcs::Waypoint waypointA = gps_list[waypointAIndex];
          int waypointBIndex = order[i+1];
-         sensor_msgs::NavSatFix waypointB = gps_list[waypointBIndex];
+         gcs::Waypoint waypointB = gps_list[waypointBIndex];
 
          double distance = GetPathLength(waypointA, waypointB);
          sum+=distance;
@@ -254,7 +254,7 @@ double GpsUtils::GetRouteDistance(std::vector<sensor_msgs::NavSatFix> &gps_list)
  /// @param wp vector containing GPS waypoints
  /// @param MAX_POP maximum number of members of the population
  /// @returns nothing
- void GpsUtils::initialiseGA(std::vector<sensor_msgs::NavSatFix>& wp, int MAX_POP )
+ void GpsUtils::initialiseGA(std::vector<gcs::Waypoint>& wp, int MAX_POP )
  {
      waypoints = wp;
      recordDistance = GetRouteDistance(waypoints);
@@ -386,3 +386,11 @@ double GpsUtils::GetRouteDistance(std::vector<sensor_msgs::NavSatFix> &gps_list)
      }
      return newOrder;
  }
+
+/// Accessor method to return best order after running 
+/// TSP Algorithm
+/// @returns nothing. 
+std::vector<int> GpsUtils::getBestOrder()
+{
+    return bestOrder;
+}

@@ -201,6 +201,9 @@ void GCS::setMavId(int id)
  
 }
 
+/// sets active UAVs and publishes a message
+/// to drones
+/// @returns nothing
 void GCS::armMav()
 {
    std_msgs::Int32MultiArray activeMav_msg;
@@ -219,39 +222,52 @@ void GCS::armMav()
   // call this after uploading?
 }
 
+/// uploads waypoints to each UAV based 
+/// on the number of active UAVs set
+/// Also uses splitWatpoints to divide 
+/// waypoints between UAVs
+/// @see splitWaypoints()
 void GCS::uploadWaypoints()
 {
+  // set active UAVs for drones
   armMav();
   std::vector<int> active_mav_copy;  // copy contents of active UAVs. 
   active_mav_copy = active_mavs;
+  // set active key required to search which UAVs are active
   int active_key = 1;
   int index;
   
-  int n  = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1); // number of active mavs
+  //return number of active mavs
+  int active_uav_count  = std::count(active_mav_copy.begin(), active_mav_copy.end(), active_key); 
 
-  if(n > 0)
+  // If there are active UAVs
+  if(active_uav_count > 0)
   {
-
-    std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = splitWaypoints(transect_list, n);      
+    // split waypoints based on the number of active uavs.
+    std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = splitWaypoints(transect_list, active_uav_count);      
     int wp_size = truncated_waypoints.size();
 
-    ROS_INFO("Number of active Waypoints %d", wp_size);
-    ROS_INFO("Number of active drones %d", n);
+    ROS_INFO("Waypoint Routes split %d", wp_size);
+    ROS_INFO("Number of active drones %d", active_uav_count);
 
+    // for each set of routes within the waypoint vectors
       for (auto& row: truncated_waypoints)
       {
-        // find first active index
+        // find first active UAV index
         std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), active_key);
         if(it != active_mav_copy.end())
         {
           index = std::distance(active_mav_copy.begin(), it);
           ROS_INFO("\nUAV %d activated", index + 1 );
+          // deactivate this index and set to zero to enable
+          // us to find the next active index
           active_mav_copy[index] = 0;
         }
         else
         {
           ROS_WARN("No active UAVs found");
         }
+        // For each set of waypoints within the row.  
         for(auto& waypoint: row)
         {          
           waypoint.id = index;
@@ -260,20 +276,23 @@ void GCS::uploadWaypoints()
           ros::Duration(0.001).sleep();
         }
       }
-
+      // clear the list of waypoints.
       transect_list.clear();
   }
 
   else
   {
-    ROS_ERROR("No Drones active, Check");
+    ROS_ERROR("No Drones active, Check to see if any were selected");
   }
 }
 
-std::vector<std::vector<gcs::Waypoint>> GCS::splitWaypoints(std::vector<gcs::Waypoint>& vec , size_t n)
+/// Splits Waypoints based on the number of Active UAVs selected
+/// @param vec Vector containing all waypoints
+/// @param n number of active UAVs;
+/// @returns a vector containin a vector of waypoints with size n
+std::vector<std::vector<gcs::Waypoint> > GCS::splitWaypoints(std::vector<gcs::Waypoint>& vec , size_t n)
 {
   std::vector<std::vector<gcs::Waypoint>> rtn;
-
   size_t length = vec.size() / n;
   size_t remain = vec.size() % n;
 
@@ -288,13 +307,73 @@ std::vector<std::vector<gcs::Waypoint>> GCS::splitWaypoints(std::vector<gcs::Way
 
     begin = end;
   }
+
+   std::vector<QGeoCoordinate> home_positions = model.getUavPositions();
+   // Return Active UAV positions
+   for(int i = 0; i < home_positions.size(); i++)
+   {
+     ROS_INFO("UAV %d position is at %f, %f ", i, home_positions[i].latitude(), home_positions[i].longitude());
+   }
+
+   //Sanity Check
+  for(int i = 0; i < rtn.size(); i++)
+  {
+    ROS_INFO("Before Home point Insertion, Sets of route %d contains: ", i);
+    for (int j = 0; j < rtn[i].size(); i++)
+    {
+      ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
+    }
+  }
+
+  // insert Home points into each waypoint to make journey
+  // circular Remove this later after 
+  for(int i = 0; i < rtn.size(); i++)
+  {
+    gcs::Waypoint uav_initial_location;
+    uav_initial_location.latitude = home_positions[i].latitude();
+    uav_initial_location.longitude = home_positions[i].longitude();
+    rtn.at(i).insert(rtn.at(i).begin(), uav_initial_location);
+    rtn.at(i).insert(rtn.at(i).end(), uav_initial_location);
+  }
+
+  // Sanity Check 
+   for(int i = 0; i < rtn.size(); i++)
+  {
+    ROS_INFO("After Insertion, Sets of route %d now contains: ", i);
+    for (int j = 0; j < rtn[i].size(); i++)
+    {
+      ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
+    }
+  }
+  // call sort Waypoints here...
+  sortWaypoints(rtn);
+  // Sanity Check
+  for(int i = 0; i < rtn.size(); i++)
+  {
+    ROS_INFO("After Sorting, Sets of route %d now contains: ", i);
+    for (int j = 0; j < rtn[i].size(); i++)
+    {
+      ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
+    }
+  }
+
+
+
   return rtn;
 }
 
+/// Runs the Genetic TSP Algorithm and sorts the waypoint
+/// @param rtn: Vector containing Waypoints
+/// @returns nothing
 void GCS::sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn)
 {
     std::vector<gcs::Waypoint> waypoints;
+    std::vector<std::vector<gcs::Waypoint> > modified_rtn;
+    int NUM_GEN = 100;
+    int num_generations;
 
+  // Define waypoints object to be used by the TSP 
+  // Algorithm
   for(ssize_t i= 0; i < rtn.size(); i++)
   {
     for(ssize_t j = 0; j< rtn.at(i).size(); i++)
@@ -302,7 +381,36 @@ void GCS::sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn)
       waypoints.push_back(rtn.at(i).at(j));
     }
 
+    // find best route for each set of waypoints. 
+    // can tweak number of generations here. 
+    while(num_generations < NUM_GEN)
+    {
+          gpsGenerator.initialiseGA(waypoints, 100);
+          gpsGenerator.computeFitness();
+          gpsGenerator.normalizeFitness();
+          gpsGenerator.nextGeneration();
+          num_generations++;
+    }
+
+    // Print out Best Order
+    ROS_INFO("Best route order is---------");
+    std::vector<int> routeOrder = gpsGenerator.getBestOrder();
+    for(int z = 0; z < routeOrder.size(); z++)
+    {
+      ROS_INFO("----- %d", z);
+    }
+
+    // shuffle elements according to route order
+    for(std::size_t i = 1; i < routeOrder.size()-2; i++)
+    {
+      int indexA = routeOrder[i];
+      modified_rtn.at(i).push_back(waypoints.at(indexA));
+    }
+    
   }
+
+  // overwrite existing Waypoints
+  rtn = modified_rtn;
 
 }
 
@@ -504,39 +612,57 @@ bool GCS::getPlayPause()
    return mission_pause;
 }
 
+///Generates a list of waypoints when the "Generate" Button is clicked on 
+/// the GUI based on the start and end poisitons and number of waypoints
+/// required. 
+/// @param start Start GPS position in string format. This parameter is converted from
+/// a string to a gcs::Waypoint type in order to extract the Latitude and Longitude
+/// @param end End GPS position in string format. This parameter is converted from
+/// a string to a gcs::Waypoint type in order to extract the Latitude and Longitude
+/// @param num_locations number of intermediate waypoints between the start and end 
+/// coordinates
+/// @returns nothing
 void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
 {
+  // clear UI waypoints 
   qml_gps_points.clear();
-  //ROS_INFO("Size before: %d", qml_gps_points.length());
     // Process incoming strings
-    sensor_msgs::NavSatFix start_pos;
-    sensor_msgs::NavSatFix end_pos;
-    std::vector<sensor_msgs::NavSatFix> uav_route;
-    gcs::Waypoint iterated_position;
-
+    gcs::Waypoint start_pos;
+    gcs::Waypoint end_pos;
+    // used to store the number of interpolated waypoints
+    std::vector<gcs::Waypoint> uav_route;
+    // check if there is valid text in arguments
     if(start.isEmpty() || end.isEmpty() || num_locations == 0)
     {
       ROS_ERROR("check input arguments");
     }
-
     else
     {
+      start_pos = convertTextToWaypoint(start.toStdString());
+      end_pos = convertTextToWaypoint(end.toStdString());
 
-      start_pos = convertTextToNavSatFix(start.toStdString());
-      end_pos = convertTextToNavSatFix(end.toStdString());
-
+      // calculate bearing of start position to end position
+      // and then calculate the number of waypoints recquired
       double bearing = gpsGenerator.ComputeBearing(start_pos, end_pos);
       uav_route = gpsGenerator.returnPositionsBasedOnLocations(num_locations, bearing, start_pos, end_pos);
-      //ROS_INFO("UAV ROUTE Size %d", uav_route.size());
+     
       QGeoCoordinate start_coord;
       QGeoCoordinate end_coord;
 
+      // reinsert conversion of text waypoints
+      // to qml waypoints to be displayed in UI 
       start_coord.setLatitude(start_pos.latitude);
       start_coord.setLongitude(start_pos.longitude);
       end_coord.setLatitude(end_pos.latitude);
       end_coord.setLongitude(end_pos.longitude);
 
       qml_gps_points.append(start_coord);
+
+      // Add waypoints to the:
+      // QML UI Vector
+      // Add altitude and sample times to 
+      // each waypoint and add to the transect list which
+      // is to be published
 
       for(int i = 0; i < uav_route.size(); i++)
       {
@@ -545,31 +671,38 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
           p_single.setLongitude(uav_route[i].longitude);
           qml_gps_points.append(p_single);
 
-          iterated_position.latitude = uav_route[i].latitude;
-          iterated_position.longitude = uav_route[i].longitude;
-          iterated_position.altitude = 10; // TODO define this later
-          iterated_position.sample = 1; // TODO Define this later
-          iterated_position.sampleTime = 20; // TODO definet his later
+          uav_route[i].altitude = 10; // TODO define this later
+          uav_route[i].sample = 1; // TODO Define this later
+          uav_route[i].sampleTime = 20; // TODO define this later
           
-          transect_list.push_back(iterated_position);
+          transect_list.push_back(uav_route[i]);
 
         }
-
         qml_gps_points.append(end_coord);
         uav_route.clear();
-        //ROS_INFO("Size after: %d", qml_gps_points.length());
-
     }  
 
 }
 
+/// Generates recording locations based on the hydrophone recording range 
+/// and total distance set by user.
+/// @param center A center waypoint string text which is converted to GPS 
+/// coordinates
+/// @param distance A user defined maximum diamter of the coverage area
+/// @param samplingTime Sampling time at each waypoint
+/// @returns nothing
 void GCS:: generateDisks(QString center, double distance, double samplingTime)
 {
+  // clear the UI waypoints as this variable is used 
+  // by addgeneratedWaypoints as well. 
   qml_gps_points.clear();
+  
+  // declare variables to be used for bounding boxes and 
+  // center points etc
   QVector<QGeoCoordinate>bounding_box;
-  sensor_msgs::NavSatFix center_point;
-  gcs::Waypoint iterated_position;
+  gcs::Waypoint center_point;
 
+  // check input parameters are valid
   if(center.isEmpty() || distance == 0)
   {
     ROS_ERROR("Check input arguments again");
@@ -579,24 +712,25 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
   {
 
     ROS_INFO ("Distance is %f", distance);
-  center_point = convertTextToNavSatFix(center.toStdString());
+   center_point = convertTextToWaypoint(center.toStdString());
   
   // bounding boxes are in a clockwise dfirction
-   sensor_msgs::NavSatFix top_right = gpsGenerator.GetDestinationCoordinate(center_point, 45, distance);
-   sensor_msgs::NavSatFix bottom_right = gpsGenerator.GetDestinationCoordinate(center_point, 135, distance);
-   sensor_msgs::NavSatFix top_left = gpsGenerator.GetDestinationCoordinate(center_point, 315, distance);
-   sensor_msgs::NavSatFix bottom_left = gpsGenerator.GetDestinationCoordinate(center_point, 225, distance);
+   gcs::Waypoint top_right = gpsGenerator.GetDestinationCoordinate(center_point, 45, distance);
+   gcs::Waypoint bottom_right = gpsGenerator.GetDestinationCoordinate(center_point, 135, distance);
+   gcs::Waypoint top_left = gpsGenerator.GetDestinationCoordinate(center_point, 315, distance);
+   gcs::Waypoint bottom_left = gpsGenerator.GetDestinationCoordinate(center_point, 225, distance);
 
-  // first 4 elements in the vector represents the bouding box.
-  QGeoCoordinate q_top_right = convertNavSatFixToQGeoCoordinate(top_right);
-   QGeoCoordinate q_top_left = convertNavSatFixToQGeoCoordinate(top_left);
-    QGeoCoordinate q_bottom_right = convertNavSatFixToQGeoCoordinate(bottom_right);
-     QGeoCoordinate q_bottom_left = convertNavSatFixToQGeoCoordinate(bottom_left);
+   // first 4 elements in the vector represents the bouding box.
+   QGeoCoordinate q_top_right = convertWaypointToQGeoCoordinate(top_right);
+   QGeoCoordinate q_top_left = convertWaypointToQGeoCoordinate(top_left);
+   QGeoCoordinate q_bottom_right = convertWaypointToQGeoCoordinate(bottom_right);
+   QGeoCoordinate q_bottom_left = convertWaypointToQGeoCoordinate(bottom_left);
 
-  qml_gps_points.push_back(q_top_right);
-  qml_gps_points.push_back(q_bottom_right);
-  qml_gps_points.push_back(q_top_left);
-  qml_gps_points.push_back(q_bottom_left);
+   //push into UI vector
+    qml_gps_points.push_back(q_top_right);
+    qml_gps_points.push_back(q_bottom_right);
+    qml_gps_points.push_back(q_top_left);
+    qml_gps_points.push_back(q_bottom_left);
 
   // find the distance between two points to determine the length of the square
   double l = gpsGenerator.GetPathLength(bottom_left, bottom_right);
@@ -610,16 +744,17 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
   arr_size = floor(n_points) + 1;
 
   // Use bottom left as starting position
-  sensor_msgs::NavSatFix initial_position;
+  gcs::Waypoint initial_position;
   initial_position.latitude = bottom_left.latitude;
   initial_position.longitude = bottom_left.longitude;
 
   std::vector <std::pair <double, double>> points;
-  std::vector <sensor_msgs::NavSatFix> uav_route;
+  std::vector <gcs::Waypoint> uav_route;
 
   double x_init = 0;
   double y_init = 0;
 
+  // Calculate the cartesian points on the square
   for (int i = 1; i <= arr_size; i++)
   {
     for(int j = 1; j <= arr_size; j++)
@@ -627,19 +762,18 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
         double curr_x  = x_init + (2*i - 1) * d/2;
         double curr_y = y_init + (2*j - 1) * d/2;
         ROS_INFO("X: %f" "Y: %f", curr_x, curr_y);
-
         points.push_back(std::make_pair(curr_x, curr_y));
     }
   }
 
+  int length = points.size();
 
-   int length = points.size();
-
-  sensor_msgs::NavSatFix prev;
-  sensor_msgs::NavSatFix curr;
+  gcs::Waypoint prev;
+  gcs::Waypoint curr;
   double prev_x_pos;
   double prev_y_pos; 
 
+ // generate the GPS positions from the cartesian lengths
   for(int i = 0; i < points.size(); i ++)
   {
     double x_pos = points[i].first;
@@ -656,7 +790,6 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
       curr = gpsGenerator.GetDestinationCoordinate(initial_position, bearing, length);
     }
 
-
     else
     {
         double x_dir = x_pos - prev_x_pos;
@@ -666,10 +799,8 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
         double brn_drg = RadToDeg(bearing);
         brn_drg = (brn_drg >= 0) ? brn_drg : brn_drg + 2 * PI;
         curr = gpsGenerator.GetDestinationCoordinate(prev, brn_drg, length);
-
     }
-   
-
+   // Add GPS positions to the routes
     uav_route.push_back(curr);
     prev = curr;
     prev_x_pos = x_pos;
@@ -683,22 +814,23 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
         p_single.setLongitude(uav_route[i].longitude);
         qml_gps_points.append(p_single);
 
-        iterated_position.latitude = uav_route[i].latitude;
-        iterated_position.longitude = uav_route[i].longitude;
-        iterated_position.altitude = 10; // TODO define this later
-        iterated_position.sample = 1; // TODO Define this later
-        iterated_position.sampleTime = samplingTime; // TODO definet his later
+        uav_route[i].altitude = 10; // TODO define this later
+        uav_route[i].sample = 1; // TODO Define this later
+        uav_route[i].sampleTime = samplingTime; // TODO definet his later
         
-        transect_list.push_back(iterated_position);
+        transect_list.push_back(uav_route[i]);
     }
   }
-
 }
 
- sensor_msgs::NavSatFix GCS::convertTextToNavSatFix(std::string input_string)
+/// converts an input string to a gcs::Waypoint type
+/// @param input_string a string parameter
+/// @returns a gcs::Waypoint variable containing
+/// GPS latitude and longitude
+ gcs::Waypoint GCS::convertTextToWaypoint(std::string input_string)
  {
      std::vector<double> result;
-     sensor_msgs::NavSatFix gps_output;
+     gcs::Waypoint gps_output;
 
      std::stringstream s_stream(input_string);
 
@@ -714,16 +846,18 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
     gps_output.longitude = result[1];
 
     return gps_output;
-
  }
 
- QGeoCoordinate GCS::convertNavSatFixToQGeoCoordinate(sensor_msgs::NavSatFix &input)
+/// converts a gcs::Waypoint type to a 
+/// QGeocoordinate type
+/// @param input a gcs::Waypoint parameter
+/// @returns a QGeoCoordinate variable containing
+/// GPS latitude and longitude
+ QGeoCoordinate GCS::convertWaypointToQGeoCoordinate(gcs::Waypoint &input)
  {
    QGeoCoordinate output ;
-
    output.setLatitude(input.latitude);
    output.setLongitude(input.longitude);
    output.setAltitude(input.altitude);
-
    return output;
  }
