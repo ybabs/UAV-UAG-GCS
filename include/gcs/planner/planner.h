@@ -124,7 +124,8 @@ class GCS: public QObject
      std::vector<std::vector<gcs::Waypoint>> splitWaypoints(std::vector<gcs::Waypoint> &vec , size_t n);
      void publishMessage(gcs::Action &msg, int action);
      void publishMessage(gcs::Waypoint &msg);
-     std::vector<gcs::Way
+     void sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn);
+     
 
 
 

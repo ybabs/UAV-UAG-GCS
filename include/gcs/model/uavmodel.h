@@ -11,7 +11,7 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <QGeoCoordinate>
 #include <QVariantList>
-#include "gcs/planner/planner.h"
+// #include "gcs/planner/planner.h"
 
 
 

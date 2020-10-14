@@ -105,11 +105,7 @@ void GCS:: publishMessage(gcs::Waypoint &msg)
 
        waypoint_publisher.publish(msg);   
   } 
-
-
 }
-
-
 
 void GCS::takeoff()
 {
@@ -199,16 +195,8 @@ void GCS::setMavId(int id)
 
             default:
             break;
-
-
-
-
     }
-  
-
     mavIdSet();
-
-    
   }
  
 }
@@ -274,11 +262,6 @@ void GCS::uploadWaypoints()
       }
 
       transect_list.clear();
-      // for( auto &itr : active_mavs)
-      //   {
-      //     itr = 0;
-      //   }
-
   }
 
   else
@@ -289,7 +272,6 @@ void GCS::uploadWaypoints()
 
 std::vector<std::vector<gcs::Waypoint>> GCS::splitWaypoints(std::vector<gcs::Waypoint>& vec , size_t n)
 {
-
   std::vector<std::vector<gcs::Waypoint>> rtn;
 
   size_t length = vec.size() / n;
@@ -306,24 +288,22 @@ std::vector<std::vector<gcs::Waypoint>> GCS::splitWaypoints(std::vector<gcs::Way
 
     begin = end;
   }
+  return rtn;
+}
 
-  std::vector<QGeoCoordindate> uav_home = model.getUavPositions();
-  double distance;
-  double min_distance;
+void GCS::sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn)
+{
+    std::vector<gcs::Waypoint> waypoints;
 
-
-  // Sort Waypoints according to distance. 
-  for(auto i = rtn.begin(); i != rtn.end(); ++i)
+  for(ssize_t i= 0; i < rtn.size(); i++)
   {
-    for(auto j = i.begin(); j !=i.end(); ++j)
+    for(ssize_t j = 0; j< rtn.at(i).size(); i++)
     {
-      min_distance = gpsGenerator.GetPathLength()
-      
-
+      waypoints.push_back(rtn.at(i).at(j));
     }
+
   }
 
-  return rtn;
 }
 
 int GCS::getDroneSpeed()
@@ -607,7 +587,7 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
    sensor_msgs::NavSatFix top_left = gpsGenerator.GetDestinationCoordinate(center_point, 315, distance);
    sensor_msgs::NavSatFix bottom_left = gpsGenerator.GetDestinationCoordinate(center_point, 225, distance);
 
-  // first 4 elements in the vecvtor represents the bouding box.
+  // first 4 elements in the vector represents the bouding box.
   QGeoCoordinate q_top_right = convertNavSatFixToQGeoCoordinate(top_right);
    QGeoCoordinate q_top_left = convertNavSatFixToQGeoCoordinate(top_left);
     QGeoCoordinate q_bottom_right = convertNavSatFixToQGeoCoordinate(bottom_right);
@@ -710,15 +690,10 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
         iterated_position.sampleTime = samplingTime; // TODO definet his later
         
         transect_list.push_back(iterated_position);
-
     }
-
   }
 
-
-
 }
-
 
  sensor_msgs::NavSatFix GCS::convertTextToNavSatFix(std::string input_string)
  {
