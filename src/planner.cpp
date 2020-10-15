@@ -250,6 +250,8 @@ void GCS::uploadWaypoints()
   // If there are active UAVs
   if(active_uav_count > 0)
   {
+    // apply TSP on the transect list
+    tspTour(transect_list);
     // split waypoints based on the number of active uavs.
     std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = splitWaypoints(transect_list, active_uav_count);      
     int wp_size = truncated_waypoints.size();
@@ -298,6 +300,56 @@ void GCS::uploadWaypoints()
 void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
 {
   
+  std::vector<int> routeOrder;
+  std::vector<gcs::Waypoint> new_route;
+  int NUM_GEN = 100;
+  int num_generations = 0;
+  //TODO determine Home position based on the Drone selected here
+  std::vector<QGeoCoordinate> home_positions = model.getUavPositions();
+  gcs::Waypoint uav_home;
+  uav_home.latitude = home_positions[0].latitude();
+  uav_home.longitude =home_positions[0].longitude();
+  tsp_wp.insert(tsp_wp.begin(), uav_home);
+  tsp_wp.insert(tsp_wp.end(), uav_home);
+
+  // for(int i = 0; i < tsp_wp.size(); i++)
+  // {
+  //   ROS_INFO("Lat: %f", tsp_wp.at(i).latitude);
+  // }
+
+  gpsGenerator.initialiseGA(tsp_wp, 500);
+
+      // find best route for each set of waypoints. 
+    // can tweak number of generations here. 
+    while(num_generations < NUM_GEN)
+    {
+          // ROS_INFO("computing fitness ");
+          gpsGenerator.computeFitness();
+         // ROS_INFO("Fitness Done ");
+          gpsGenerator.normalizeFitness();
+          // ROS_INFO("Fitness normalised ");
+          gpsGenerator.nextGeneration();
+          //ROS_INFO("Next Generation populated ");
+          num_generations++;
+          //ROS_INFO("GEn..... %d", num_generations);
+    }
+
+    routeOrder = gpsGenerator.getBestOrder();
+    ROS_INFO("Best distance is %f", gpsGenerator.getBestDistance());
+    ROS_INFO("TSP Size %lu", tsp_wp.size());
+     // shuffle elements according to route order 
+    // and add new route to vector
+    for(std::size_t n = 1; n < routeOrder.size()-1; n++)
+    {
+      int indexA = routeOrder[n];
+     // ROS_INFO("index = %d", indexA);
+      new_route.push_back(tsp_wp.at(indexA));
+    }
+
+  num_generations = 0;
+    tsp_wp = new_route;
+
+
 }
 
 /// Splits Waypoints based on the number of Active UAVs selected
@@ -598,8 +650,23 @@ void GCS::startMission()
   gcs::Action msg;
   // Set and publish mission parameters
   setMissionParams();
+  // ToDO only process single Mission
+  // Waypoints if we are running missions for a single drone
+  processMissionWaypoints();
   publishMessage(msg, 4);
   ROS_INFO("Starting Mission");
+}
+
+void GCS::processMissionWaypoints()
+{  
+   // tsp tour
+   tspTour(single_mission_list);
+
+   for(auto msg : single_mission_list)
+   {
+     publishMessage(msg);
+   }
+ 
 }
 
 void GCS::abortMission()
@@ -622,11 +689,10 @@ void GCS::addWaypoint(double lat, double lon,  float alt, int sample, float samp
   msg.altitude = alt;
   msg.sample = sample;
   msg.sampleTime = sampleTime;
+  // Add each waypoint to a vector
+  single_mission_list.push_back(msg);
+  ROS_INFO("Waypoint Added:, Lat: %f, Lon: %f, Alt: %f , Sample: %d, SampleTime: %f",  lat, lon, alt, sample, sampleTime);                                                                                 
 
-  publishMessage(msg);
-  ROS_INFO("Waypoint Added:, Lat: %f, Lon: %f, Alt: %f , Sample: %d, SampleTime: %f",  lat, lon, alt,
-                                                                                 sample, sampleTime);
-   
 }
 
 void GCS::setPlayPause(bool pause)

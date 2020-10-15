@@ -126,6 +126,7 @@ class GCS: public QObject
      void publishMessage(gcs::Waypoint &msg);
      void sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn);
      void tspTour(std::vector<gcs::Waypoint> &tsp_wp);
+     void processMissionWaypoints();
      
 
 
@@ -153,6 +154,7 @@ class GCS: public QObject
     ros::Publisher active_mav_publisher;
 
     std::vector<gcs::Waypoint> transect_list;
+    std::vector<gcs::Waypoint> single_mission_list;
     QVector<QGeoCoordinate> qml_gps_points; // used to store GPS waypoints which are displayed on the UI
     std::vector<int> active_mavs;
     

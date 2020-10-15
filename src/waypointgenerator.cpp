@@ -239,6 +239,10 @@ double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint> &gps_list)
         {
             recordDistance = distance;
             bestOrder = population[i];
+            // for(int i = 0; i < bestOrder.size(); i++)
+            // {
+            //     ROS_INFO("Order --- %d", bestOrder[i]);
+            // }
         }
         if(distance < currentRecord)
         {
@@ -267,7 +271,7 @@ double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint> &gps_list)
      for(std::size_t i = 0; i < waypoints.size(); i++)
      {
          order.push_back(i);
-         bestOrder.push_back(0);
+         bestOrder.push_back(i);
         //  ROS_INFO("Lat: %f", waypoints.at(i).latitude);
      }
 
