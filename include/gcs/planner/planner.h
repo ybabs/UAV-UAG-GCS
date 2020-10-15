@@ -125,6 +125,7 @@ class GCS: public QObject
      void publishMessage(gcs::Action &msg, int action);
      void publishMessage(gcs::Waypoint &msg);
      void sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn);
+     void tspTour(std::vector<gcs::Waypoint> &tsp_wp);
      
 
 

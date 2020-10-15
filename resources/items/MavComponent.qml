@@ -12,24 +12,6 @@ import QtQuick.Controls.Material 2.14
         property bool swarmCheckState
         signal swarmModeChecked(bool value)
 
-        // CheckBox{
-        //     id:swarmCheckBox
-        //     text: "Swarm Mode"
-        //     onClicked:{
-        //         if(checked)
-        //         {
-        //             swarmCheckState = true
-        //         }
-
-        //         else
-        //         {
-        //             swarmCheckState = false
-        //         }
-
-        //         swarmModeChecked(swarmCheckState)
-        //     }
-        // }
-
         MavCheckBox{
             text: "MAV 1"
             changeOnClick: true

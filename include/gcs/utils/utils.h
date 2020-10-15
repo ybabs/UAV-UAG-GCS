@@ -2,8 +2,6 @@
 #define UTILS_H
 
 #include <cmath>
-#include <geometry_msgs/QuaternionStamped.h>
-#include <geometry_msgs/Vector3Stamped.h>
 
 #define PI (double) 3.141592653589793
 #define C_EARTH (double)6378137.0

@@ -240,6 +240,13 @@ void GCS::uploadWaypoints()
   //return number of active mavs
   int active_uav_count  = std::count(active_mav_copy.begin(), active_mav_copy.end(), active_key); 
 
+  ROS_INFO("Transect List-------");
+
+  // for(int i = 0; i < transect_list.size(); i++)
+  // {
+  //   ROS_INFO("Lat: %f, Lon %f:", transect_list.at(i).latitude, transect_list.at(i).longitude);
+  // }
+
   // If there are active UAVs
   if(active_uav_count > 0)
   {
@@ -286,6 +293,13 @@ void GCS::uploadWaypoints()
   }
 }
 
+
+
+void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
+{
+  
+}
+
 /// Splits Waypoints based on the number of Active UAVs selected
 /// @param vec Vector containing all waypoints
 /// @param n number of active UAVs;
@@ -316,14 +330,14 @@ std::vector<std::vector<gcs::Waypoint> > GCS::splitWaypoints(std::vector<gcs::Wa
    }
 
    //Sanity Check
-  for(int i = 0; i < rtn.size(); i++)
-  {
-    ROS_INFO("Before Home point Insertion, Sets of route %d contains: ", i);
-    for (int j = 0; j < rtn[i].size(); i++)
-    {
-      ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
-    }
-  }
+  // for(int i = 0; i < rtn.size(); i++)
+  // {
+  //   ROS_INFO("Before Home point Insertion, Sets of route %d contains: ", i);
+  //   for (int j = 0; j < rtn[i].size(); j++)
+  //   {
+  //     ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
+  //   }
+  // }
 
   // insert Home points into each waypoint to make journey
   // circular Remove this later after 
@@ -337,27 +351,25 @@ std::vector<std::vector<gcs::Waypoint> > GCS::splitWaypoints(std::vector<gcs::Wa
   }
 
   // Sanity Check 
-   for(int i = 0; i < rtn.size(); i++)
-  {
-    ROS_INFO("After Insertion, Sets of route %d now contains: ", i);
-    for (int j = 0; j < rtn[i].size(); i++)
-    {
-      ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
-    }
-  }
+  //  for(int i = 0; i < rtn.size(); i++)
+  // {
+  //   ROS_INFO("After Insertion, Sets of route %d now contains: ", i);
+  //   for (int j = 0; j < rtn[i].size(); j++)
+  //   {
+  //     ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
+  //   }
+  // }
   // call sort Waypoints here...
   sortWaypoints(rtn);
   // Sanity Check
-  for(int i = 0; i < rtn.size(); i++)
-  {
-    ROS_INFO("After Sorting, Sets of route %d now contains: ", i);
-    for (int j = 0; j < rtn[i].size(); i++)
-    {
-      ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
-    }
-  }
-
-
+  // for(int i = 0; i < rtn.size(); i++)
+  // {
+  //   ROS_INFO("After Sorting, Sets of route %d now contains: ", i);
+  //   for (int j = 0; j < rtn[i].size(); j++)
+  //   {
+  //     ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
+  //   }
+  // }
 
   return rtn;
 }
@@ -368,44 +380,69 @@ std::vector<std::vector<gcs::Waypoint> > GCS::splitWaypoints(std::vector<gcs::Wa
 void GCS::sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn)
 {
     std::vector<gcs::Waypoint> waypoints;
+    std::vector<gcs::Waypoint> new_route;
+    std::vector<int> routeOrder;
     std::vector<std::vector<gcs::Waypoint> > modified_rtn;
-    int NUM_GEN = 100;
-    int num_generations;
+    int NUM_GEN = 1000;
+    int num_generations = 0;
 
   // Define waypoints object to be used by the TSP 
   // Algorithm
-  for(ssize_t i= 0; i < rtn.size(); i++)
+ // ROS_INFO("Number of times to run this loop is %lu", rtn.size());
+  for(int i= 0; i < rtn.size(); i++)
   {
-    for(ssize_t j = 0; j< rtn.at(i).size(); i++)
+    for(int j = 0; j< rtn.at(i).size(); j++)
     {
       waypoints.push_back(rtn.at(i).at(j));
+     // ROS_INFO("In loop %d, Lat: %f, Lon: %f", i, rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
     }
+
+    // initialise GA here
+    gpsGenerator.initialiseGA(waypoints, 100);
+    //ROS_INFO("Waypoints initialised ");
 
     // find best route for each set of waypoints. 
     // can tweak number of generations here. 
     while(num_generations < NUM_GEN)
     {
-          gpsGenerator.initialiseGA(waypoints, 100);
+          // ROS_INFO("computing fitness ");
           gpsGenerator.computeFitness();
+         // ROS_INFO("Fitness Done ");
           gpsGenerator.normalizeFitness();
+          // ROS_INFO("Fitness normalised ");
           gpsGenerator.nextGeneration();
+          //ROS_INFO("Next Generation populated ");
           num_generations++;
+         // ROS_INFO("GEn..... %d", num_generations);
     }
 
     // Print out Best Order
-    ROS_INFO("Best route order is---------");
-    std::vector<int> routeOrder = gpsGenerator.getBestOrder();
-    for(int z = 0; z < routeOrder.size(); z++)
+    //ROS_INFO("Best route order is---------");
+     routeOrder = gpsGenerator.getBestOrder();
+    // for(int z = 0; z < routeOrder.size(); z++)
+    // {
+    //   ROS_INFO("----- %d", routeOrder[z]);
+    // }
+    ROS_INFO("Best distance is %f", gpsGenerator.getBestDistance());
+    ROS_INFO("Waypoints Size: %d", waypoints.size());
+    ROS_INFO("Routes Order Size: %d", routeOrder.size());
+
+    // shuffle elements according to route order 
+    // and add new route to vector
+    for(std::size_t n = 1; n < routeOrder.size()-1; n++)
     {
-      ROS_INFO("----- %d", z);
+      int indexA = routeOrder[n];
+      //ROS_INFO("index = %d", indexA);
+      new_route.push_back(waypoints.at(indexA));
     }
 
-    // shuffle elements according to route order
-    for(std::size_t i = 1; i < routeOrder.size()-2; i++)
-    {
-      int indexA = routeOrder[i];
-      modified_rtn.at(i).push_back(waypoints.at(indexA));
-    }
+   // reset num_generations
+   num_generations = 0;
+   // Add new route to vector
+    modified_rtn.push_back(new_route);
+  // reset new_route vector
+   waypoints.clear();
+   new_route.clear();
     
   }
 
@@ -761,7 +798,7 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
     {
         double curr_x  = x_init + (2*i - 1) * d/2;
         double curr_y = y_init + (2*j - 1) * d/2;
-        ROS_INFO("X: %f" "Y: %f", curr_x, curr_y);
+        //ROS_INFO("X: %f" "Y: %f", curr_x, curr_y);
         points.push_back(std::make_pair(curr_x, curr_y));
     }
   }

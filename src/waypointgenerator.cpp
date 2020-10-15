@@ -244,10 +244,11 @@ double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint> &gps_list)
         {
             currentRecord = distance;
             currentBestOrder = population[i];
-           // std::cout << "Current Best Distance: " << currentRecord << std::endl;
+            //ROS_INFO("Current Best Distance %f ", currentRecord);
         }
         fitness.at(i) = 1/(pow(distance, 8) + 1);
      }
+
  }
 
  /// initialises and populates the fitness, order and ppopulation
@@ -256,12 +257,18 @@ double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint> &gps_list)
  /// @returns nothing
  void GpsUtils::initialiseGA(std::vector<gcs::Waypoint>& wp, int MAX_POP )
  {
+     // delete previous instances of the run
+     resetVariables();
      waypoints = wp;
      recordDistance = GetRouteDistance(waypoints);
+
+     
      // create a first set of routes based on initial waypoints
      for(std::size_t i = 0; i < waypoints.size(); i++)
      {
          order.push_back(i);
+         bestOrder.push_back(0);
+        //  ROS_INFO("Lat: %f", waypoints.at(i).latitude);
      }
 
      // initialise fitness and best route
@@ -269,7 +276,6 @@ double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint> &gps_list)
      for(int i = 0; i < MAX_POP; i++)
      {
          fitness.push_back(0);
-         bestOrder.push_back(0);
      }
 
      // add list of random routes
@@ -389,8 +395,32 @@ double GpsUtils::GetRouteDistance(std::vector<gcs::Waypoint> &gps_list)
 
 /// Accessor method to return best order after running 
 /// TSP Algorithm
-/// @returns nothing. 
+/// @returns vector containing best route. 
 std::vector<int> GpsUtils::getBestOrder()
 {
-    return bestOrder;
+    // for(int i = 0; i < bestOrder.size(); i++)
+    // {
+    //     ROS_INFO("Order --- %d", bestOrder[i]);
+    // }
+     return bestOrder;
+     
+}
+
+double GpsUtils::getBestDistance()
+{
+    return recordDistance;
+}
+
+/// Clears all variables from previous run
+/// @returns nothing
+void GpsUtils::resetVariables()
+{
+    bestOrder.clear();
+    route.clear();
+    waypoints.clear();
+    fitness.clear();  
+    currentBestOrder.clear();
+    order.clear();
+    population.clear();
+
 }

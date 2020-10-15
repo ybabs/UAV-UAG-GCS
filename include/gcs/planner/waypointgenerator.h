@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include "gcs/utils/utils.h"
+#include <ros/ros.h>
 #include "gcs/Waypoint.h"
 #include <sensor_msgs/NavSatFix.h>
 #include <random>
@@ -37,6 +38,8 @@ public:
     std::vector<int> pickRandomParent(std::vector<std::vector<int> >& population, std::vector<float>& fitness);
     void mutate(std::vector<int> &order, float mutationRate);
     std::vector<int> crossover(std::vector<int> &parentA, std::vector<int> &parentB);
+    void resetVariables();
+    double getBestDistance();
 
 private:
     std::vector<gcs::Waypoint> route;

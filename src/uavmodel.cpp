@@ -99,6 +99,27 @@ void UavModel::M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 
 std::vector<QGeoCoordinate> UavModel::getUavPositions()
 {
+    QGeoCoordinate uav_pos;
+    uav_pos.setLatitude(52.770104);
+    uav_pos.setLongitude(-1.231820);
+
+    QGeoCoordinate uav_pos2;
+    uav_pos2.setLatitude(52.770104);
+    uav_pos2.setLongitude(-1.231820);
+
+    QGeoCoordinate uav_pos3;
+    uav_pos3.setLatitude(52.770104);
+    uav_pos3.setLongitude(-1.231820);
+
+    QGeoCoordinate uav_pos4;
+    uav_pos4.setLatitude(52.770104);
+    uav_pos4.setLongitude(-1.231820);
+
+    uav_positions[0] = uav_pos;
+    uav_positions[1] = uav_pos2;
+    uav_positions[2] = uav_pos3;
+    uav_positions[3] = uav_pos4;
+    
     return uav_positions;
 }
 
