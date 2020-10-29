@@ -250,10 +250,9 @@ void GCS::uploadWaypoints()
   // If there are active UAVs
   if(active_uav_count > 0)
   {
-    // apply TSP on the transect list
-    tspTour(transect_list);
+  
     // split waypoints based on the number of active uavs.
-    std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = splitWaypoints(transect_list, active_uav_count);      
+    std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = mtspTour(transect_list, active_uav_count);      
     int wp_size = truncated_waypoints.size();
 
     ROS_INFO("Waypoint Routes split %d", wp_size);
@@ -317,25 +316,25 @@ void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
   //   ROS_INFO("Lat: %f", tsp_wp.at(i).latitude);
   // }
 
-  gpsGenerator.initialiseGA(tsp_wp, 500);
+  tsp.initialiseGA(tsp_wp, 300);
 
       // find best route for each set of waypoints. 
     // can tweak number of generations here. 
     while(num_generations < NUM_GEN)
     {
           // ROS_INFO("computing fitness ");
-          gpsGenerator.computeFitness();
+          tsp.computeFitness();
          // ROS_INFO("Fitness Done ");
-          gpsGenerator.normalizeFitness();
+          tsp.normalizeFitness();
           // ROS_INFO("Fitness normalised ");
-          gpsGenerator.nextGeneration();
+          tsp.nextGeneration();
           //ROS_INFO("Next Generation populated ");
           num_generations++;
           //ROS_INFO("GEn..... %d", num_generations);
     }
 
-    routeOrder = gpsGenerator.getBestOrder();
-    ROS_INFO("Best distance is %f", gpsGenerator.getBestDistance());
+    routeOrder = tsp.getBestOrder();
+    ROS_INFO("Best distance is %f", tsp.getBestDistance());
     ROS_INFO("TSP Size %lu", tsp_wp.size());
      // shuffle elements according to route order 
     // and add new route to vector
@@ -347,161 +346,46 @@ void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
     }
 
   num_generations = 0;
-    tsp_wp = new_route;
+  tsp_wp = new_route;
 
 
 }
 
-/// Splits Waypoints based on the number of Active UAVs selected
-/// @param vec Vector containing all waypoints
-/// @param n number of active UAVs;
-/// @returns a vector containin a vector of waypoints with size n
-std::vector<std::vector<gcs::Waypoint> > GCS::splitWaypoints(std::vector<gcs::Waypoint>& vec , size_t n)
+
+std::vector<std::vector<gcs::Waypoint>> GCS::mtspTour(std::vector<gcs::Waypoint> &tsp_wp,
+                                                     std::size_t nd)
 {
-  std::vector<std::vector<gcs::Waypoint>> rtn;
-  size_t length = vec.size() / n;
-  size_t remain = vec.size() % n;
+  // Use position of drone 1 to set the starting and
+  // end points of the drones
 
-  size_t begin = 0;
-  size_t end = 0;
+ std::vector<QGeoCoordinate> home_positions = model.getUavPositions();
 
-  for(size_t i = 0; i < std::min(n, vec.size()); i++)
-  {
-    end += (remain > 0) ? (length + !!(remain--)) : length;
+ gcs::Waypoint start_location;
+ start_location.latitude = home_positions[0].latitude();
+ start_location.longitude = home_positions[0].longitude();
+ tsp_wp.insert(tsp_wp.begin(), start_location);
+ tsp_wp.insert(tsp_wp.end(), start_location);
 
-    rtn.push_back(std::vector<gcs::Waypoint>(vec.begin() + begin, vec.begin() + end));
+   mtsp.initialiseGA(tsp_wp, nd);
 
-    begin = end;
-  }
+  std::vector<std::vector<size_t>> sol = mtsp.getBestOrder();
+  std::vector<std::vector<gcs::Waypoint>> route(sol.size(), std::vector<gcs::Waypoint>());
 
-   std::vector<QGeoCoordinate> home_positions = model.getUavPositions();
-   // Return Active UAV positions
-   for(int i = 0; i < home_positions.size(); i++)
-   {
-     ROS_INFO("UAV %d position is at %f, %f ", i, home_positions[i].latitude(), home_positions[i].longitude());
-   }
 
-   //Sanity Check
-  // for(int i = 0; i < rtn.size(); i++)
-  // {
-  //   ROS_INFO("Before Home point Insertion, Sets of route %d contains: ", i);
-  //   for (int j = 0; j < rtn[i].size(); j++)
-  //   {
-  //     ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
-  //   }
-  // }
+  // Create a new route for the UAVs 
+    for(std::size_t i = 0; i < sol.size(); i++)
+    {
+        for(std::size_t j = 0; j < sol.at(i).size(); j++)
+        {
+            int indexA = sol.at(i).at(j);
+            route.at(i).push_back(tsp_wp.at(indexA));
+        }
+    }
 
-  // insert Home points into each waypoint to make journey
-  // circular Remove this later after 
-  for(int i = 0; i < rtn.size(); i++)
-  {
-    gcs::Waypoint uav_initial_location;
-    uav_initial_location.latitude = home_positions[i].latitude();
-    uav_initial_location.longitude = home_positions[i].longitude();
-    rtn.at(i).insert(rtn.at(i).begin(), uav_initial_location);
-    rtn.at(i).insert(rtn.at(i).end(), uav_initial_location);
-  }
-
-  // Sanity Check 
-  //  for(int i = 0; i < rtn.size(); i++)
-  // {
-  //   ROS_INFO("After Insertion, Sets of route %d now contains: ", i);
-  //   for (int j = 0; j < rtn[i].size(); j++)
-  //   {
-  //     ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
-  //   }
-  // }
-  // call sort Waypoints here...
-  sortWaypoints(rtn);
-  // Sanity Check
-  // for(int i = 0; i < rtn.size(); i++)
-  // {
-  //   ROS_INFO("After Sorting, Sets of route %d now contains: ", i);
-  //   for (int j = 0; j < rtn[i].size(); j++)
-  //   {
-  //     ROS_INFO("Lat: %f, Lon: %f", rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
-  //   }
-  // }
-
-  return rtn;
+    return route;  
+   
 }
 
-/// Runs the Genetic TSP Algorithm and sorts the waypoint
-/// @param rtn: Vector containing Waypoints
-/// @returns nothing
-void GCS::sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn)
-{
-    std::vector<gcs::Waypoint> waypoints;
-    std::vector<gcs::Waypoint> new_route;
-    std::vector<int> routeOrder;
-    std::vector<std::vector<gcs::Waypoint> > modified_rtn;
-    int NUM_GEN = 1000;
-    int num_generations = 0;
-
-  // Define waypoints object to be used by the TSP 
-  // Algorithm
- // ROS_INFO("Number of times to run this loop is %lu", rtn.size());
-  for(int i= 0; i < rtn.size(); i++)
-  {
-    for(int j = 0; j< rtn.at(i).size(); j++)
-    {
-      waypoints.push_back(rtn.at(i).at(j));
-     // ROS_INFO("In loop %d, Lat: %f, Lon: %f", i, rtn.at(i).at(j).latitude, rtn.at(i).at(j).longitude);
-    }
-
-    // initialise GA here
-    gpsGenerator.initialiseGA(waypoints, 100);
-    //ROS_INFO("Waypoints initialised ");
-
-    // find best route for each set of waypoints. 
-    // can tweak number of generations here. 
-    while(num_generations < NUM_GEN)
-    {
-          // ROS_INFO("computing fitness ");
-          gpsGenerator.computeFitness();
-         // ROS_INFO("Fitness Done ");
-          gpsGenerator.normalizeFitness();
-          // ROS_INFO("Fitness normalised ");
-          gpsGenerator.nextGeneration();
-          //ROS_INFO("Next Generation populated ");
-          num_generations++;
-         // ROS_INFO("GEn..... %d", num_generations);
-    }
-
-    // Print out Best Order
-    //ROS_INFO("Best route order is---------");
-     routeOrder = gpsGenerator.getBestOrder();
-    // for(int z = 0; z < routeOrder.size(); z++)
-    // {
-    //   ROS_INFO("----- %d", routeOrder[z]);
-    // }
-    ROS_INFO("Best distance is %f", gpsGenerator.getBestDistance());
-    ROS_INFO("Waypoints Size: %d", waypoints.size());
-    ROS_INFO("Routes Order Size: %d", routeOrder.size());
-
-    // shuffle elements according to route order 
-    // and add new route to vector
-    for(std::size_t n = 1; n < routeOrder.size()-1; n++)
-    {
-      int indexA = routeOrder[n];
-      //ROS_INFO("index = %d", indexA);
-      new_route.push_back(waypoints.at(indexA));
-    }
-
-   // reset num_generations
-   num_generations = 0;
-   // Add new route to vector
-    modified_rtn.push_back(new_route);
-  // reset new_route vector
-   waypoints.clear();
-   new_route.clear();
-    
-  }
-
-  // overwrite existing Waypoints
-  rtn = modified_rtn;
-
-}
 
 int GCS::getDroneSpeed()
 {

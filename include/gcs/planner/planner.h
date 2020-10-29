@@ -29,6 +29,8 @@
 #include <QDebug>
 #include "gcs/planner/waypointgenerator.h"
 #include "gcs/model/uavmodel.h"
+#include "gcs/planner/tsp.h"
+#include "gcs/planner/mtsp.h"
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -121,11 +123,10 @@ class GCS: public QObject
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
      void addGeneratedWaypoints(QString start, QString end, int num_locations);
      void generateDisks(QString center, double distance, double samplingTime);
-     std::vector<std::vector<gcs::Waypoint>> splitWaypoints(std::vector<gcs::Waypoint> &vec , size_t n);
      void publishMessage(gcs::Action &msg, int action);
      void publishMessage(gcs::Waypoint &msg);
-     void sortWaypoints(std::vector<std::vector<gcs::Waypoint>> &rtn);
      void tspTour(std::vector<gcs::Waypoint> &tsp_wp);
+     std::vector<std::vector<gcs::Waypoint>> mtspTour(std::vector<gcs::Waypoint> &mtsp_wp, std::size_t nd);
      void processMissionWaypoints();
      
 
@@ -159,6 +160,8 @@ class GCS: public QObject
     std::vector<int> active_mavs;
     
     GpsUtils gpsGenerator; 
+    TSP tsp;
+    MTSP mtsp;
     UavModel model;
       
 
