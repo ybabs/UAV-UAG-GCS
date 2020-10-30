@@ -15,7 +15,7 @@ void MTSP::initialiseGA(std::vector<gcs::Waypoint>& wp, int active_drones)
     generatePopulation();
     computeFitness();
 
-    solve(100);
+    solve(200);
 
 }
 

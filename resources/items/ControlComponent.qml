@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.14
 import QtQuick.Controls.Material 2.14
 
 RowLayout{
+
+
     anchors{
         bottom: parent.bottom
         left: parent.left
@@ -19,6 +21,15 @@ RowLayout{
         onClicked: {
             planner.abortMission()
             console.log("Aborting Mission")
+            for(var i = 0; i < planner.mtspPath.length; i++)
+            {
+                 console.log(planner.mtspPath[i])
+
+                for(var j = 0; j < planner.mtspPath[i].length; j++)
+                {
+                    console.log(planner.mtspPath[i][j].latitude)
+                }
+            }
         }
 
     }

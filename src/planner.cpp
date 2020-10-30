@@ -242,11 +242,6 @@ void GCS::uploadWaypoints()
 
   ROS_INFO("Transect List-------");
 
-  // for(int i = 0; i < transect_list.size(); i++)
-  // {
-  //   ROS_INFO("Lat: %f, Lon %f:", transect_list.at(i).latitude, transect_list.at(i).longitude);
-  // }
-
   // If there are active UAVs
   if(active_uav_count > 0)
   {
@@ -370,17 +365,33 @@ std::vector<std::vector<gcs::Waypoint>> GCS::mtspTour(std::vector<gcs::Waypoint>
 
   std::vector<std::vector<size_t>> sol = mtsp.getBestOrder();
   std::vector<std::vector<gcs::Waypoint>> route(sol.size(), std::vector<gcs::Waypoint>());
+  
+  // mtsp_points.resize(sol.size());
 
+  
+  
 
   // Create a new route for the UAVs 
     for(std::size_t i = 0; i < sol.size(); i++)
     {
+        QVariantList inner2;
         for(std::size_t j = 0; j < sol.at(i).size(); j++)
         {
+         
             int indexA = sol.at(i).at(j);
             route.at(i).push_back(tsp_wp.at(indexA));
+            
+            // Generate for QVector
+            QGeoCoordinate p_single;
+            p_single.setLatitude(tsp_wp.at(indexA).latitude);
+            p_single.setLongitude(tsp_wp.at(indexA).longitude);
+            inner2 << QVariant::fromValue(p_single);
         }
+
+       mtsp_points << QVariant::fromValue(QVariantList{inner2});
     }
+
+ 
 
     return route;  
    
@@ -509,6 +520,13 @@ QVariantList GCS::getPointVector()
     }
 
     return l;
+}
+
+QVariantList GCS::getMtspVector()
+{
+
+  return mtsp_points;
+
 }
 
 void GCS::setSamplingTime(float sample_time)

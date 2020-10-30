@@ -5,6 +5,8 @@ import QtQuick.Controls.Material 2.14
 
     RowLayout{
 
+        signal pathGenerated(ListModel paths)
+
         property bool mav1checked
         property bool mav2checked
         property bool mav3checked

@@ -391,6 +391,14 @@ ApplicationWindow {
 
         }
 
+        MapItemView{
+            model:planner.mstpPath
+            delegate: Line
+            {
+                path: planner.mstpPath[0]
+            }
+        }
+
 
 
         MouseArea{
@@ -414,6 +422,7 @@ ApplicationWindow {
         }
                     
    }
+
 
     
    

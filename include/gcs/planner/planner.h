@@ -53,6 +53,7 @@ class GCS: public QObject
     Q_PROPERTY(int missionStatusFlag READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
     Q_PROPERTY(int mavId READ getMavId WRITE setMavId NOTIFY mavIdSet)
     Q_PROPERTY(QVariantList trackpoints READ getPointVector)
+    Q_PROPERTY(QVariantList mtspPath READ getMtspVector)
     
        
 
@@ -97,6 +98,7 @@ class GCS: public QObject
     void initPublishers();
     void setMissionParams();
     QVariantList getPointVector();
+    QVariantList getMtspVector();
     gcs::Waypoint convertTextToWaypoint(std::string input_string);
     QGeoCoordinate convertWaypointToQGeoCoordinate(gcs::Waypoint &input_coord);
 
@@ -157,6 +159,8 @@ class GCS: public QObject
     std::vector<gcs::Waypoint> transect_list;
     std::vector<gcs::Waypoint> single_mission_list;
     QVector<QGeoCoordinate> qml_gps_points; // used to store GPS waypoints which are displayed on the UI
+    //QVector<QVector<QGeoCoordinate>> mtsp_points;
+    QVariantList mtsp_points;
     std::vector<int> active_mavs;
     
     GpsUtils gpsGenerator; 
