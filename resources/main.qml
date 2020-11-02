@@ -17,6 +17,10 @@ ApplicationWindow{
       id:waypointModel
   }
 
+  ListModel{
+        id:tspModel
+    }
+
     function createMap()
     {
         if(map)
@@ -85,7 +89,6 @@ ApplicationWindow{
                     width:page.width
                     height: page.height
                     property bool multiUavMode : page.stackViewBool
-
                     
                         onErrorChanged: {
                             if(map.error !== Map.NoError){
@@ -115,6 +118,8 @@ ApplicationWindow{
 
                         }
 
+
+
                 }
 
             }
@@ -122,9 +127,19 @@ ApplicationWindow{
 
         }
     }
+    
 
     ControlComponent{
         id: controlButtons
+
+        onTspwaypointGenerated:{
+
+            for (var i = 0; i < tspwaypoints.count; i++)
+            {
+                tspModel.append(tspwaypoints.get(i))
+               
+            }
+        }
 
     }
 

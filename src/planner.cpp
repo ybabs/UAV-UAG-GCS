@@ -335,9 +335,16 @@ void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
     // and add new route to vector
     for(std::size_t n = 1; n < routeOrder.size()-1; n++)
     {
+      QGeoCoordinate p_single;
       int indexA = routeOrder[n];
      // ROS_INFO("index = %d", indexA);
+      p_single.setLatitude(tsp_wp.at(indexA).latitude);
+      p_single.setLongitude(tsp_wp.at(indexA).longitude);
       new_route.push_back(tsp_wp.at(indexA));
+      
+      tsp_points << QVariant::fromValue(p_single);
+      tspModel.addMarker(p_single);
+      //ROS_INFO(" TSP suze is %d", tsp_points.size());
     }
 
   num_generations = 0;
@@ -525,8 +532,15 @@ QVariantList GCS::getPointVector()
 QVariantList GCS::getMtspVector()
 {
 
+ 
   return mtsp_points;
 
+}
+
+QVariantList GCS::getTspVector()
+{
+   //ROS_INFO("Size is %d", tsp_points.size());
+  return tsp_points;
 }
 
 void GCS::setSamplingTime(float sample_time)

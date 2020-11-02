@@ -24,6 +24,23 @@ Map{
         id:boundingBoxModel
     }
 
+     function loadPath()
+     {
+            var lines = []
+            for (var i = 0; i < tspModel.count; ++i)
+            {
+                line.push(
+                    {
+                        latitude: tspModel.get(i).latitude,
+                        longitude: tspModel.get(i).longitude
+                    }
+                );
+            }
+
+            return lines
+    }
+
+
     function computeScale()
     {
         var coord1, coord2, dist, text, f
@@ -163,6 +180,16 @@ Map{
     }
 
     MapItemView{
+        model: tspPath
+        delegate: MapPolyline{
+            line.width: 3
+            line.color: 'green'
+            path: model.position
+
+        }
+    }
+
+    MapItemView{
         model: mav.uavModel
         delegate: MapQuickItem{
             coordinate:model.position
@@ -222,12 +249,7 @@ Map{
             radius: 53
         }
     }
-    
 
-
-    Line{
-        id: uavPath
-    }
 
     WaypointParamComponent{
         id:missionPopup
@@ -235,11 +257,14 @@ Map{
         onOkButtonClicked:{
 
             markerModel.append({"position":pos})
-            uavPath.addCoordinate(pos)
+           // uavPath.addCoordinate(pos)
             console.log(pos.latitude + ", " + pos.longitude)
 
         }
     }
+
+
+
 
     DiskCoverageComponent{
         id:diskGenPopup

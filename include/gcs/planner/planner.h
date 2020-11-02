@@ -29,6 +29,7 @@
 #include <QDebug>
 #include "gcs/planner/waypointgenerator.h"
 #include "gcs/model/uavmodel.h"
+#include "gcs/model/tspmodel.h"
 #include "gcs/planner/tsp.h"
 #include "gcs/planner/mtsp.h"
 #include <sstream>
@@ -54,6 +55,7 @@ class GCS: public QObject
     Q_PROPERTY(int mavId READ getMavId WRITE setMavId NOTIFY mavIdSet)
     Q_PROPERTY(QVariantList trackpoints READ getPointVector)
     Q_PROPERTY(QVariantList mtspPath READ getMtspVector)
+    Q_PROPERTY(QVariantList tspPath READ getTspVector)
     
        
 
@@ -99,6 +101,7 @@ class GCS: public QObject
     void setMissionParams();
     QVariantList getPointVector();
     QVariantList getMtspVector();
+    QVariantList getTspVector();
     gcs::Waypoint convertTextToWaypoint(std::string input_string);
     QGeoCoordinate convertWaypointToQGeoCoordinate(gcs::Waypoint &input_coord);
 
@@ -161,12 +164,14 @@ class GCS: public QObject
     QVector<QGeoCoordinate> qml_gps_points; // used to store GPS waypoints which are displayed on the UI
     //QVector<QVector<QGeoCoordinate>> mtsp_points;
     QVariantList mtsp_points;
+    QVariantList tsp_points;
     std::vector<int> active_mavs;
     
     GpsUtils gpsGenerator; 
     TSP tsp;
     MTSP mtsp;
     UavModel model;
+    TspModel tspModel;
       
 
 };

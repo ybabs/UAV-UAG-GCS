@@ -5,6 +5,13 @@ import QtQuick.Controls.Material 2.14
 
 RowLayout{
 
+    signal tspwaypointGenerated(ListModel tspwaypoints)
+
+
+    ListModel{
+        id: tspList
+    }
+
 
     anchors{
         bottom: parent.bottom
@@ -39,8 +46,18 @@ RowLayout{
         text:"Start"
         Material.accent: Material.Green
         onClicked: {
+
             planner.startMission()
-            console.log("Starting Mission")
+
+            for(var i = 0; i < planner.tspPath.length; i++)
+            {
+                
+                tspList.append(planner.tspPath[i])
+                //console.log(planner.tspPath[i].latitude)
+            }
+
+             tspwaypointGenerated(tspList) 
+            console.log("Starting Mission ")
         }
 
     }
