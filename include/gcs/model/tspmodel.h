@@ -15,7 +15,7 @@ public:
   using QAbstractListModel::QAbstractListModel;
   enum MarkerRoles { positionRole = Qt::UserRole + 1 };
 
- void addMarker(const QGeoCoordinate &coordinate) {
+Q_INVOKABLE void addMarker(const QGeoCoordinate &coordinate) {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     //ROS_INFO("Added Runway to list LAT: %f, ", coordinate.latitude());
     m_coordinates.append(coordinate);
