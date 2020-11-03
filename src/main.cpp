@@ -20,29 +20,31 @@ int main(int argc, char* argv[])
      GCS gcs;
      UavModel model;
      TspModel tspModel;
+     tspModel.test();
 
      QGeoCoordinate coord1;
      QGeoCoordinate coord2;
      QGeoCoordinate coord3;
 
+     coord1.setLatitude(53.186166);
+     coord1.setLongitude(-1.926956);
+     coord2.setLatitude(52.545485);
+     coord2.setLongitude(-1.926956);
+     coord3.setLatitude(53.684997);
+     coord3.setLongitude(-1.974328);
+     tspModel.addPosition(coord1);
+     tspModel.addPosition(coord2);
+     tspModel.addPosition(coord3);
   
 
      context->setContextProperty("planner", &gcs);
      context->setContextProperty("mav", &model);
-     context->setContextProperty("tspPath", &tspModel);
+     context->setContextProperty("TSPModel", &tspModel);
 
     
      const QUrl url(QStringLiteral("qrc:/main.qml"));
 
-         coord1.setLatitude(53.186166);
-     coord1.setLongitude(-1.926956);
-          coord2.setLatitude(52.545485);
-     coord2.setLongitude(-1.926956);
-          coord3.setLatitude(53.684997);
-     coord3.setLongitude(-1.974328);
-     tspModel.addMarker(coord1);
-     tspModel.addMarker(coord2);
-     tspModel.addMarker(coord3);
+
      QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) 
     {

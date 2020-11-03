@@ -24,23 +24,6 @@ Map{
         id:boundingBoxModel
     }
 
-     function loadPath()
-     {
-            var lines = []
-            for (var i = 0; i < tspModel.count; ++i)
-            {
-                line.push(
-                    {
-                        latitude: tspModel.get(i).latitude,
-                        longitude: tspModel.get(i).longitude
-                    }
-                );
-            }
-
-            return lines
-    }
-
-
     function computeScale()
     {
         var coord1, coord2, dist, text, f
@@ -180,15 +163,22 @@ Map{
     }
 
     MapItemView{
-        model: tspPath
+        model: TSPModel
         delegate: MapPolyline{
             line.width: 3
             line.color: 'green'
-            path: model.position
+            path: TSPModel.path
 
         }
     }
 
+    // MapPolyline{
+    //     id:pl
+    //     line.width :20
+    //     line.color: 'red'
+    // }
+
+    
     MapItemView{
         model: mav.uavModel
         delegate: MapQuickItem{
@@ -319,5 +309,30 @@ Map{
 
     }
 
+    //      function loadPath()
+    //  {
+    //         var lines = []
+    //         for (var i = 0; i < TSPModel.geopath.size(); ++i)
+    //         {
+    //             lines[i] = TSPModel.geopath.coordinateAt(i)
+    //         }
+    //         return lines;
+    // }
+
+    //  Connections{
+    //     target:TSPModel
+    //     onGeopathChanged: {
+    //         console.log("Path changed")
+    //         pl.path = loadPath()
+    //     }
+    // }
+
+    // Component.onCompleted: pl.path = loadPath()
+
+
 
 }
+
+
+   
+

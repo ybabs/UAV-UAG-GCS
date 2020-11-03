@@ -343,10 +343,27 @@ void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
       new_route.push_back(tsp_wp.at(indexA));
       
       tsp_points << QVariant::fromValue(p_single);
-      tspModel.addMarker(p_single);
+      //tspModel.addPosition(p_single);
+      
       //ROS_INFO(" TSP suze is %d", tsp_points.size());
     }
 
+     QGeoCoordinate coord1;
+     QGeoCoordinate coord2;
+     QGeoCoordinate coord3;
+
+     coord1.setLatitude(53.186166);
+     coord1.setLongitude(-1.926956);
+     coord2.setLatitude(52.545485);
+     coord2.setLongitude(-1.926956);
+     coord3.setLatitude(53.684997);
+     coord3.setLongitude(-1.974328);
+     tspModel.addPosition(coord1);
+     tspModel.addPosition(coord2);
+     tspModel.addPosition(coord3);
+  
+
+  //tspModel.test();
   num_generations = 0;
   tsp_wp = new_route;
 
