@@ -18,8 +18,8 @@ UavModel::UavModel(QObject *parent):
 
     m100_battery_subscriber = nh.subscribe("/m100/battery_state", 10, &UavModel::M100batteryStateCallback, this);
     m100_gps_subscriber = nh.subscribe("/m100/gps_position", 10, &UavModel::M100gpsCallback, this);
-    n3_battery_subscriber = nh.subscribe("n3/battery_state", 10, &UavModel::N3batteryStateCallback, this);
-    n3_gps_subscriber = nh.subscribe("n3/gps_position", 10, &UavModel::N3gpsCallback, this);
+    n3_battery_subscriber = nh.subscribe("a3/battery_state", 10, &UavModel::N3batteryStateCallback, this);
+    n3_gps_subscriber = nh.subscribe("a3/gps_position", 10, &UavModel::N3gpsCallback, this);
 
 
     connected_clients = 4;
