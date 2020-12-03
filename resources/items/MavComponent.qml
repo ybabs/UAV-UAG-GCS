@@ -4,15 +4,10 @@ import QtQuick.Layouts 1.14
 import QtQuick.Controls.Material 2.14
 
     RowLayout{
-
-        signal pathGenerated(ListModel paths)
-
         property bool mav1checked
         property bool mav2checked
         property bool mav3checked
         property bool mav4checked
-        property bool swarmCheckState
-        signal swarmModeChecked(bool value)
 
         MavCheckBox{
             text: "MAV 1"
@@ -80,17 +75,6 @@ import QtQuick.Controls.Material 2.14
                     planner.mavId = 40;
                 }
             }
-        }
-
-
-        Button{
-            id: setMavControlButton
-            highlighted:true
-            text: "Upload"
-            onClicked: {                
-                planner.uploadWaypoints()
-            }
-
         }
     }
 

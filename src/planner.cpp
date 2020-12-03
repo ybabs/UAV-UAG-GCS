@@ -289,85 +289,60 @@ void GCS::uploadWaypoints()
   }
 }
 
-
-
 void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
 {
-  
-  std::vector<int> routeOrder;
-  std::vector<gcs::Waypoint> new_route;
-  int NUM_GEN = 100;
-  int num_generations = 0;
-  //TODO determine Home position based on the Drone selected here
-  std::vector<QGeoCoordinate> home_positions = model.getUavPositions();
-  gcs::Waypoint uav_home;
-  uav_home.latitude = home_positions[0].latitude();
-  uav_home.longitude =home_positions[0].longitude();
-  tsp_wp.insert(tsp_wp.begin(), uav_home);
-  tsp_wp.insert(tsp_wp.end(), uav_home);
+    std::vector<int> routeOrder;
+    std::vector<gcs::Waypoint> new_route;
+    int NUM_GEN = 100;
+    int num_generations = 0;
+    //TODO determine Home position based on the Drone selected here
+    std::vector<QGeoCoordinate> home_positions = model.getUavPositions();
+    gcs::Waypoint uav_home;
+    uav_home.latitude = home_positions[0].latitude();
+    uav_home.longitude =home_positions[0].longitude();
+    tsp_wp.insert(tsp_wp.begin(), uav_home);
+    tsp_wp.insert(tsp_wp.end(), uav_home);
 
-  // for(int i = 0; i < tsp_wp.size(); i++)
-  // {
-  //   ROS_INFO("Lat: %f", tsp_wp.at(i).latitude);
-  // }
+    // for(int i = 0; i < tsp_wp.size(); i++)
+    // {
+    //   ROS_INFO("Lat: %f", tsp_wp.at(i).latitude);
+    // }
 
-  tsp.initialiseGA(tsp_wp, 300);
+    tsp.initialiseGA(tsp_wp, 300);
 
-      // find best route for each set of waypoints. 
-    // can tweak number of generations here. 
-    while(num_generations < NUM_GEN)
-    {
-          // ROS_INFO("computing fitness ");
-          tsp.computeFitness();
-         // ROS_INFO("Fitness Done ");
-          tsp.normalizeFitness();
-          // ROS_INFO("Fitness normalised ");
-          tsp.nextGeneration();
-          //ROS_INFO("Next Generation populated ");
-          num_generations++;
-          //ROS_INFO("GEn..... %d", num_generations);
-    }
+        // find best route for each set of waypoints. 
+      // can tweak number of generations here. 
+      while(num_generations < NUM_GEN)
+      {
+            // ROS_INFO("computing fitness ");
+            tsp.computeFitness();
+          // ROS_INFO("Fitness Done ");
+            tsp.normalizeFitness();
+            // ROS_INFO("Fitness normalised ");
+            tsp.nextGeneration();
+            //ROS_INFO("Next Generation populated ");
+            num_generations++;
+            //ROS_INFO("GEn..... %d", num_generations);
+      }
 
-    routeOrder = tsp.getBestOrder();
-    ROS_INFO("Best distance is %f", tsp.getBestDistance());
-    ROS_INFO("TSP Size %lu", tsp_wp.size());
-     // shuffle elements according to route order 
-    // and add new route to vector
-    for(std::size_t n = 1; n < routeOrder.size()-1; n++)
-    {
-      QGeoCoordinate p_single;
-      int indexA = routeOrder[n];
-     // ROS_INFO("index = %d", indexA);
-      p_single.setLatitude(tsp_wp.at(indexA).latitude);
-      p_single.setLongitude(tsp_wp.at(indexA).longitude);
-      new_route.push_back(tsp_wp.at(indexA));
-      
-      tsp_points << QVariant::fromValue(p_single);
-      //tspModel.addPosition(p_single);
-      
-      //ROS_INFO(" TSP suze is %d", tsp_points.size());
-    }
-
-     QGeoCoordinate coord1;
-     QGeoCoordinate coord2;
-     QGeoCoordinate coord3;
-
-     coord1.setLatitude(53.186166);
-     coord1.setLongitude(-1.926956);
-     coord2.setLatitude(52.545485);
-     coord2.setLongitude(-1.926956);
-     coord3.setLatitude(53.684997);
-     coord3.setLongitude(-1.974328);
-     tspModel.addPosition(coord1);
-     tspModel.addPosition(coord2);
-     tspModel.addPosition(coord3);
-  
-
-  //tspModel.test();
-  num_generations = 0;
-  tsp_wp = new_route;
-
-
+      routeOrder = tsp.getBestOrder();
+      ROS_INFO("Best distance is %f", tsp.getBestDistance());
+      ROS_INFO("TSP Size %lu", tsp_wp.size());
+      // shuffle elements according to route order 
+      // and add new route to vector
+      for(std::size_t n = 1; n < routeOrder.size()-1; n++)
+      {
+        QGeoCoordinate p_single;
+        int indexA = routeOrder[n];
+      // ROS_INFO("index = %d", indexA);
+        p_single.setLatitude(tsp_wp.at(indexA).latitude);
+        p_single.setLongitude(tsp_wp.at(indexA).longitude);
+        new_route.push_back(tsp_wp.at(indexA));
+        
+        tsp_points << QVariant::fromValue(p_single);
+      }
+    num_generations = 0;
+    tsp_wp = new_route;
 }
 
 
@@ -421,6 +396,22 @@ std::vector<std::vector<gcs::Waypoint>> GCS::mtspTour(std::vector<gcs::Waypoint>
    
 }
 
+int GCS::getHydrophoneRange()
+{
+  return hydrophone_range;
+}
+
+void GCS::setHydrophoneRange(int range)
+{
+  if(hydrophone_range != range)
+  {
+    hydrophone_range = range;
+     ROS_INFO("DAQ: %d", hydrophone_range);
+    hydrophoneRangeChanged();
+
+  }
+}
+
 
 int GCS::getDroneSpeed()
 {
@@ -432,75 +423,21 @@ void GCS::setDroneSpeed(int speed)
   if(uav_speed != speed)
   {
     uav_speed = speed;
+    ROS_INFO("Drone Speed: %d", uav_speed);
     speedTextChanged();
   }
 
 }
 
-void GCS::setHoverFlag(int flag)
-{
-  if(hover_flag != flag)
-  {
-    hover_flag = flag;
-    hoverFlagSet();
-  }
 
-}
-    
-int GCS::getHoverFlag()
-{
-  return hover_flag;
-}
-
-void GCS::setRthFlag(int flag)
-{
-  if(rth_flag != flag)
-  {
-    rth_flag = flag;
-    rthFlagSet();
-  }
-
-}
-
-int GCS::getRthFlag()
-{
-   return rth_flag;
-}
-
-void GCS::setLandFlag(int flag)
-{
-  if(land_flag !=flag)
-  {
-    land_flag = flag;
-    landFlagSet();
-  }
-}
-
-int GCS::getLandFlag()
-{
-  return land_flag;
-}
 
 void GCS::setMissionParams()
 {
   gcs::Missionparameters msg;
   msg.header.stamp = ros::Time::now();
- // msg.uavSpeed = uav_speed;
-  msg.uavSpeed = 5;
-  
-  if(hover_flag == 1 & rth_flag == 0 & land_flag == 0)
-  {
-      msg.missionEndAction = 1;
-  }
-  if(hover_flag == 0 & rth_flag == 1 & land_flag == 0)
-  {
-    msg.missionEndAction = 2;    
-  }
-  if(hover_flag == 0 & rth_flag == 0 & land_flag == 1)
-  {
-    msg.missionEndAction = 3;  
-  }
-
+  msg.uavSpeed = uav_speed;
+  // Force Mission to always RTH
+  msg.missionEndAction = 2;
   mission_param_publisher.publish(msg);
 
 }
@@ -547,11 +484,8 @@ QVariantList GCS::getPointVector()
 }
 
 QVariantList GCS::getMtspVector()
-{
-
- 
+{ 
   return mtsp_points;
-
 }
 
 QVariantList GCS::getTspVector()
@@ -577,6 +511,8 @@ float GCS::getSamplingTime()
 
 }
 
+
+
 void GCS::startMission()
 {
   armMav();
@@ -592,9 +528,13 @@ void GCS::startMission()
 
 void GCS::processMissionWaypoints()
 {  
-   // tsp tour
-   tspTour(single_mission_list);
-
+     // check if the number of waypoints in the tour are more
+  // than 2. If not, no need to run the algorithm
+   if(single_mission_list.size() > 2)
+   {
+     tspTour(single_mission_list);
+   }
+  
    for(auto msg : single_mission_list)
    {
      publishMessage(msg);
@@ -774,7 +714,8 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
   int arr_size;
 
   // determine range of hydrophone //TODO from experiments
-  double h_radius = 38 * sqrt(2); // multiply 
+  double h_radius = hydrophone_range * sqrt(2); // multiply 
+  ROS_INFO("H Radius: %f", h_radius);
   double d = sqrt(2) * h_radius;
   double n_points = l/d;
   arr_size = floor(n_points) + 1;
@@ -897,3 +838,14 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
    output.setAltitude(input.altitude);
    return output;
  }
+
+/// Resets all variables to for a new mission
+/// @returns nothing
+void GCS::reset()
+{
+  transect_list.clear();
+  single_mission_list.clear();
+  qml_gps_points.clear();
+  mtsp_points.clear();
+  tsp_points.clear();
+} 

@@ -7,7 +7,7 @@ Popup
 {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
-    height: 230
+    height: 310
     visible: false
     focus:true
 
@@ -26,12 +26,8 @@ Popup
             property bool ignoreTextChange: false
             placeholderText: qsTr("Enter center coordinate")
             Layout.fillWidth:true
-            // onTextChanged:{
-            //     if(!ignoreTextChange){
-            //         searchTextChanged(text)
-            //     }
-            // }
-            // onAccepted: startSearch(text) 
+            text: "52.772040, -1.208703"
+ 
         }
 
         TextField{
@@ -41,6 +37,7 @@ Popup
             Layout.fillWidth:true
             validator: IntValidator{bottom: 1; top: 1000}
             inputMethodHints: Qt.ImhDigitsOnly
+            text:"300"
          }
 
          TextField{
@@ -51,6 +48,7 @@ Popup
              }
              Layout.fillWidth:true
              placeholderText: "Enter Sampling Time"
+             text:"10"
              focus:true
             inputMethodHints: Qt.ImhDigitsOnly
          }
@@ -63,8 +61,24 @@ Popup
              Layout.fillWidth:true
              placeholderText: "Enter Speed"
              focus:true
+             text:"5"
              onEditingFinished: planner.droneSpeed = droneSpeedText.text
             inputMethodHints: Qt.ImhDigitsOnly
+         }
+
+         TextField{
+             id:hydrophoneRadius
+             validator: IntValidator{
+                 bottom:1
+                 top: 300
+             }
+             Layout.fillWidth:true
+             placeholderText: "Hydrophone radius"
+             focus:true
+             text:"38"
+             onEditingFinished: planner.hydrophoneRange = hydrophoneRadius.text
+             inputMethodHints:Qt.ImhDigitsOnly
+
          }
 
          GroupBox{
@@ -94,11 +108,6 @@ Popup
                  }
              }
          }
-
-
     }
-
     
-
-
 }

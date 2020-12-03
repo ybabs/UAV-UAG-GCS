@@ -12,14 +12,10 @@ ApplicationWindow{
     property variant searchLocation: map ? map.center: QtPositioning.coordinate()
     property variant searchRegion: QtPositioning.circle(searchLocation)
     property variant searchRegionItem
+    property int missionType
 
-  ListModel{
-      id:waypointModel
-  }
+    signal clearMap()
 
-  ListModel{
-        id:tspModel
-    }
 
     function createMap()
     {
@@ -34,12 +30,6 @@ ApplicationWindow{
         map.tilt = 45
     }
 
-    function clearMap()
-    {
-        map.clearMapItems();
-        map.clearData();
-        waypointModel.clear();
-    }
 
     function initializeProviders()
     {
@@ -54,22 +44,13 @@ ApplicationWindow{
     header: SearchBar{
         id:searchBar
         width:appWindow.width
+    
 
-        onWaypointGenerated:{  
-            waypointModel.clear()               
-            for(var i = 0; i < waypoints.count; i++){
-                waypointModel.append(waypoints.get(i))
-            }    
-            waypoints.clear()           
-            console.log(waypoints.count)
-            console.log(waypointModel.count)
-        }       
+        onMissionModeChanged:{
+            missionType = searchBar.missionMode
+             console.debug("Mission Mode:" + missionMode)
 
-        onSwarmModeChecked: {
-            page.stackViewBool = searchBar.swarmCheckState
-            
-            console.log(  page.stackViewBool)
-         }
+        }
     }
 
    StackView{
@@ -77,70 +58,33 @@ ApplicationWindow{
         anchors.fill: parent
         focus:true
         initialItem: Item {
-        id: page
-
-        property bool stackViewBool
-
+            id: page
 
             Component{
                 id: mapComponent
-
                 MapComponent{
                     width:page.width
                     height: page.height
-                    property bool multiUavMode : page.stackViewBool
-                    
-                        onErrorChanged: {
-                            if(map.error !== Map.NoError){
-                                var title = qsTr("ProviderError");
-                                var message = map.errorString + "<br/>";
-                                if(map.error === Map.MissingRequiredParameterError)
-                                    message += "Missing Paramater";
-                                console.log(Title + " :" + message);
-                            }
+                    property int missionMode : missionType  
+          
+                    onErrorChanged: {
+                        if(map.error !== Map.NoError){
+                        var title = qsTr("ProviderError");
+                        var message = map.errorString + "<br/>";
+                        if(map.error === Map.MissingRequiredParameterError)
+                        message += "Missing Paramater";
+                        console.log(Title + " :" + message);
                         }
-
-                        MapItemView{
-                            id:waypointItemView
-                            model:waypointModel
-                            delegate: MapQuickItem{
-                                coordinate: QtPositioning.coordinate(model.latitude, model.longitude)
-                                anchorPoint.x: image.width * 0.28
-                                anchorPoint.y: image.height
-
-
-                                sourceItem: Image {
-                                    id:image
-                                    source: "../images/marker.png"
-                                }
-                            }
-
-
-                        }
-
-
+                    }
 
                 }
 
             }
-
-
         }
     }
     
-
     ControlComponent{
         id: controlButtons
-
-        onTspwaypointGenerated:{
-
-            for (var i = 0; i < tspwaypoints.count; i++)
-            {
-                tspModel.append(tspwaypoints.get(i))
-               
-            }
-        }
-
     }
 
     StatusBar{
@@ -150,9 +94,22 @@ ApplicationWindow{
               bottom: controlButtons.bottom
               leftMargin:5
          }    
-
-
     }
+
+    Button{
+    id:resetButton
+    anchors{
+        right:parent.right
+        bottom:parent.bottom
+        rightMargin: 5
+        bottomMargin: 10
+    }
+    text:"Reset"
+    onClicked:{
+        planner.reset()
+        clearMap()
+    }
+}
 
 
 }

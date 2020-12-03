@@ -11,9 +11,9 @@
         <file>items/SearchBar.qml</file>
         <file>utils/formatDist.js</file>
         <file>items/ControlComponent.qml</file>
+        <file>items/TransectComponent.qml</file>
         <file>items/MavComponent.qml</file>
         <file>items/ButtonComponent.qml</file>
-        <file>items/MissionConfigComponent.qml</file>
         <file>items/Line.qml</file>
         <file>items/SwarmLine.qml</file>
         <file>items/WaypointParamComponent.qml</file>

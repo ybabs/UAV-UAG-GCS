@@ -45,9 +45,7 @@ class GCS: public QObject
     Q_OBJECT
 
     Q_PROPERTY(int droneSpeed READ getDroneSpeed WRITE setDroneSpeed NOTIFY speedTextChanged )
-    Q_PROPERTY(int hoverFlag READ getHoverFlag WRITE setHoverFlag NOTIFY hoverFlagSet)
-    Q_PROPERTY(int rthFlag READ getRthFlag WRITE setRthFlag NOTIFY rthFlagSet)
-    Q_PROPERTY(int landFlag READ getLandFlag WRITE setLandFlag NOTIFY landFlagSet)
+    Q_PROPERTY(int hydrophoneRange READ getHydrophoneRange WRITE setHydrophoneRange NOTIFY hydrophoneRangeChanged)
     Q_PROPERTY(float altitude READ getAltitude WRITE setAltitude NOTIFY altitudeValueChanged )
     Q_PROPERTY(float samplingTime READ getSamplingTime WRITE setSamplingTime NOTIFY samplingTimeSet)
     Q_PROPERTY(int sampleFlag READ getSamplingFlag WRITE setSamplingFlag NOTIFY samplingFlagSet )
@@ -81,14 +79,10 @@ class GCS: public QObject
 
     int getMavId();
     void setMavId(int id);
-    void setDroneSpeed(int speed); //
+    void setDroneSpeed(int speed); //    
     int getDroneSpeed(); //
-    void setHoverFlag(int flag); //
-    int getHoverFlag(); //
-    void setRthFlag(int flag); //
-    int getRthFlag(); //
-    void setLandFlag(int flag); //
-    int getLandFlag(); //
+    void setHydrophoneRange(int range);
+    int getHydrophoneRange();
     void setAltitude(float alt); //
     float getAltitude(); //
     void setSamplingFlag(int flag);
@@ -108,9 +102,7 @@ class GCS: public QObject
 
     signals:
         void speedTextChanged();
-        void hoverFlagSet();
-        void rthFlagSet();
-        void landFlagSet();
+        void hydrophoneRangeChanged();
         void altitudeValueChanged();
         void samplingFlagSet();
         void samplingTimeSet();
@@ -133,6 +125,8 @@ class GCS: public QObject
      void tspTour(std::vector<gcs::Waypoint> &tsp_wp);
      std::vector<std::vector<gcs::Waypoint>> mtspTour(std::vector<gcs::Waypoint> &mtsp_wp, std::size_t nd);
      void processMissionWaypoints();
+     void reset();
+
      
 
 
@@ -143,6 +137,7 @@ class GCS: public QObject
     ros::NodeHandle nh;
     GCS::MissionState uav_state_;
     GCS::WaypointTask waypoint_task;
+    int hydrophone_range;
     int uav_speed;
     int hover_flag;
     int rth_flag;

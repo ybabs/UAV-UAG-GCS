@@ -18,12 +18,20 @@ Map{
     
     ListModel{
         id:disksModel
-    }
+    } 
 
     ListModel{
         id:boundingBoxModel
     }
 
+    ListModel{
+    id:waypointModel
+    }     
+
+    ListModel{
+        id:markerModel
+    }  
+    
     function computeScale()
     {
         var coord1, coord2, dist, text, f
@@ -161,23 +169,6 @@ Map{
 
 
     }
-
-    MapItemView{
-        model: TSPModel
-        delegate: MapPolyline{
-            line.width: 3
-            line.color: 'green'
-            path: TSPModel.path
-
-        }
-    }
-
-    // MapPolyline{
-    //     id:pl
-    //     line.width :20
-    //     line.color: 'red'
-    // }
-
     
     MapItemView{
         model: mav.uavModel
@@ -196,10 +187,7 @@ Map{
     }
 
     MapItemView{
-        model: ListModel {
-            id: markerModel
-            dynamicRoles: true
-         }
+        model:markerModel
         delegate:MapQuickItem{
             coordinate:model.position
             sourceItem: Image{
@@ -240,6 +228,22 @@ Map{
         }
     }
 
+    MapItemView{
+        id:transectItemView
+        model:waypointModel
+        delegate: MapQuickItem{
+            coordinate: QtPositioning.coordinate(model.latitude, model.longitude)
+            anchorPoint.x: image.width * 0.28
+            anchorPoint.y: image.height
+
+
+            sourceItem: Image {
+                id:image
+                source: "../images/marker.png"
+            }
+        }
+    }
+
 
     WaypointParamComponent{
         id:missionPopup
@@ -252,8 +256,6 @@ Map{
 
         }
     }
-
-
 
 
     DiskCoverageComponent{
@@ -275,12 +277,25 @@ Map{
             }
 
             // clear waypoints
-            waypoints.clear()
-
-            
+            waypoints.clear()     
 
         }
     }
+
+    TransectComponent{
+        id:transectPopup
+
+        onWaypointGenerated:{  
+            waypointModel.clear()               
+            for(var i = 0; i < waypoints.count; i++){
+                waypointModel.append(waypoints.get(i))
+            }    
+            waypoints.clear()           
+            console.log(waypoints.count)
+            console.log(waypointModel.count)
+        }  
+    }
+
 
     MouseArea{
         anchors.fill: parent
@@ -290,7 +305,7 @@ Map{
 
         onPressAndHold: {
 
-            if(multiUavMode == false)
+            if(missionMode == 0)
             {
                 waypoint = Qt.createQmlObject('import QtLocation 5.14;\MapCircle {radius: 5; color: "red"; opacity: 0.5; border.width: 0.5}', map)
                 waypoint.center = map.toCoordinate(Qt.point(mouse.x, mouse.y))
@@ -299,38 +314,34 @@ Map{
                
             }
 
-            else
+            if(missionMode == 1)
             {
                 console.log("Swarm Mode")
                 diskGenPopup.open()
+            }
+
+            else if(missionMode == 2)
+            {
+                console.log("Transect Mode")
+                transectPopup.open()
             }
 
         }
 
     }
 
-    //      function loadPath()
-    //  {
-    //         var lines = []
-    //         for (var i = 0; i < TSPModel.geopath.size(); ++i)
-    //         {
-    //             lines[i] = TSPModel.geopath.coordinateAt(i)
-    //         }
-    //         return lines;
-    // }
+    Connections{
+    target:appWindow
+        onClearMap:{
 
-    //  Connections{
-    //     target:TSPModel
-    //     onGeopathChanged: {
-    //         console.log("Path changed")
-    //         pl.path = loadPath()
-    //     }
-    // }
+            waypointModel.clear()
+            disksModel.clear()
+            boundingBoxModel.clear()
+            markerModel.clear()
 
-    // Component.onCompleted: pl.path = loadPath()
-
-
-
+            console.debug("Reset Map")
+        }
+    }
 }
 
 
