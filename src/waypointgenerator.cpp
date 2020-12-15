@@ -27,6 +27,23 @@ double GpsUtils::GetPathLength(gcs::Waypoint start_coord, gcs::Waypoint end_coor
 
 }
 
+double GpsUtils::GetPathLength(QGeoCoordinate start_coord, QGeoCoordinate end_coord)
+{
+    double lat1_rad = DegToRad(start_coord.latitude());
+    double lat2_rad = DegToRad(end_coord.latitude());
+    double delta_lat_deg = end_coord.latitude() - start_coord.latitude();
+    double delta_lat = DegToRad(delta_lat_deg);
+    double delta_lon_deg = end_coord.longitude() - start_coord.longitude();
+    double delta_lon = DegToRad(delta_lon_deg);
+    double a = sin(delta_lat/2) * sin(delta_lat/2) + cos(lat1_rad) * cos(lat2_rad) * sin(delta_lon/2) * sin(delta_lon/2);
+    double c = 2 * atan2(sqrt(a), sqrt(1-a));
+    double d = C_EARTH * c;
+
+    return d;
+
+}
+
+
 /// Calculates latitude and longitude of a destination point given, start coordinate, distance and bearing.
 /// @param start_coord Starting GPS location
 /// @param azimuth bearing angle in degrees

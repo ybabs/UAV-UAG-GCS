@@ -8,6 +8,7 @@
 #include <ros/ros.h>
 #include "gcs/Waypoint.h"
 #include <sensor_msgs/NavSatFix.h>
+#include <QGeoCoordinate>
 #include <random>
 
 /// Class to handle Waypoint Optimisation and Route generation for GPS Waypoints.
@@ -21,6 +22,7 @@ class GpsUtils
 public:
     GpsUtils();
     double GetPathLength(gcs::Waypoint start_coord, gcs::Waypoint end_coord);
+    double GetPathLength(QGeoCoordinate start_coord, QGeoCoordinate end_coord);
     gcs::Waypoint GetDestinationCoordinate(gcs::Waypoint start_coord, double azimuth, double distance);
     double ComputeBearing(gcs::Waypoint start_point, gcs::Waypoint end_point);
     std::vector<gcs::Waypoint> returnInterpolatedPoints(int  distance, double bearing, gcs::Waypoint start, gcs::Waypoint end);

@@ -571,7 +571,7 @@ void GCS::addWaypoint(double lat, double lon,  float alt, int sample, float samp
 void GCS::setPlayPause(bool pause)
 {
 
-  std_msgs::UInt8 msg;
+  gcs::Action msg;
   if(mission_pause != pause)
   {
     mission_pause = pause;
@@ -579,8 +579,15 @@ void GCS::setPlayPause(bool pause)
     ROS_INFO("Pause %d", mission_pause);
   }
 
-  msg.data = mission_pause;
-  mission_pause_publisher.publish(msg);
+  if(pause)
+  {
+    publishMessage(msg, 6);
+  }
+
+  else
+  {
+    publishMessage(msg, 7);
+  }
 
 }
 bool GCS::getPlayPause()
@@ -849,3 +856,73 @@ void GCS::reset()
   mtsp_points.clear();
   tsp_points.clear();
 } 
+
+void GCS::collisionAvoidance()
+{
+
+  std::vector<QGeoCoordinate> uav_pos = model.getUavPositions();
+  int mat_size = uav_pos.size();
+  Eigen::Matrix4f dist_matrix;
+  dist_matrix.resize(mat_size, mat_size);
+
+  for(std::size_t i = 0; i < dist_matrix.cols(); i++)
+  {
+    for(std::size_t j = 0; j < dist_matrix.rows(); j++)
+    {
+       // check to make sure we're not computing the 
+       // distance between two similar locations
+       if(i!=j)
+       {
+         if(dist_matrix(i, j) <= 0 || dist_matrix(j,i) <=0)
+         {
+            dist_matrix(i,j) = gpsGenerator.GetPathLength(uav_pos.at(i), uav_pos.at(j));
+            dist_matrix(j,i) = dist_matrix(i,j);
+
+            // check horizontal distance between drone i and j
+            // use a 3 metre separation rule first
+            if(dist_matrix(i,j) >= 0 && dist_matrix(i<j) <= 3)
+            {
+               // check altitude difference
+               double z_diff = abs(uav_pos.at(i).altitude() -  uav_pos.at(j).altitude());
+               // if altitude difference is less than 1.5 metres
+               if (z_diff < 1.5)
+               {
+                  gcs::Action msg;
+                  msg.id = i;
+                  msg.droneaction = 7;
+                  // publish drone pause message for drone i
+                  uavcaControl(msg);
+
+                  // publish drone pause message for drone j;
+                  msg.id = j;
+                  msg.droneaction = 7;
+                  uavcaControl(msg);
+
+                  // wait one second.
+                  ros::Duration(1).sleep();
+
+                  // assign priority to drone i
+                  msg.id = i;
+                  msg.droneaction = 8;
+                  uavcaControl(msg);
+
+                  // alert drone j to continue
+                  msg.id = j;
+                  msg.droneaction = 6;
+                  uavcaControl(msg);
+               }
+
+            }
+
+         }
+       }
+    }
+  }
+
+}
+
+void GCS::uavcaControl(gcs::Action &msg)
+{
+  msg.header.stamp = ros::Time::now();
+  drone_action_publisher.publish(msg);
+}

@@ -125,6 +125,8 @@ class GCS: public QObject
      void tspTour(std::vector<gcs::Waypoint> &tsp_wp);
      std::vector<std::vector<gcs::Waypoint>> mtspTour(std::vector<gcs::Waypoint> &mtsp_wp, std::size_t nd);
      void processMissionWaypoints();
+     void collisionAvoidance();
+     void uavcaControl(gcs::Action &msg);
      void reset();
 
      
@@ -157,7 +159,6 @@ class GCS: public QObject
     std::vector<gcs::Waypoint> transect_list;
     std::vector<gcs::Waypoint> single_mission_list;
     QVector<QGeoCoordinate> qml_gps_points; // used to store GPS waypoints which are displayed on the UI
-    //QVector<QVector<QGeoCoordinate>> mtsp_points;
     QVariantList mtsp_points;
     QVariantList tsp_points;
     std::vector<int> active_mavs;
