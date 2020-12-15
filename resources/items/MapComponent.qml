@@ -64,14 +64,64 @@ Map{
     }
 
     plugin:Plugin{
-        name:"esri"
+        name:"mapboxgl"
+        PluginParameter {
+            name: "mapboxgl.mapping.use_fbo"
+            value: true
+        }
 
         PluginParameter {
             name: "mapboxgl.mapping.items.insert_before"
             value: "aerialway"
         }
 
-    }
+        PluginParameter {
+            name: "mapboxgl.mapping.cache.directory";
+            value: "~/esri_cache"
+        }
+        PluginParameter{
+            name:"mapboxgl.access_token"
+            value:"sk.eyJ1IjoibWFza2VkYWZyaWNhbiIsImEiOiJja2lxNWg3eWUwY2lpMnlyeG53bnBmdDVwIn0.-5LFYYl2fmGwEsrGr8g3nA"
+        }
+
+        PluginParameter{
+            name: "mapbox.mapping.additional_map_ids"; value: "mapbox.mapbox-streets-v8"
+        }
+
+         PluginParameter{
+            name: "mapboxgl.api_base_url"; value: "https://api.mapbox.com"
+        }
+        
+     }
+
+    //     plugin:Plugin{
+    //     name: "mapbox"//tested 7.16.2020
+    //     PluginParameter { //scribe token active(not used)
+    //         name: "mapbox.access_token"; value: "pk.eyJ1IjoiamNvZmZpZWxkIiwiYSI6ImNrY3RtYjdoaTBpajcycnFscW1lZWFudHoifQ.TQjmanqldNCYI7P4dOJ4eg"
+    //     }
+    //     PluginParameter{
+    //         name: "mapbox.mapping.additional_map_ids"; value: "mapbox.mapbox-streets-v8"
+    //     }
+
+    // }
+
+
+    // plugin:Plugin{
+    // name:"esri"
+    
+
+
+    // }
+
+    // plugin:Plugin {
+    //     name: "here"
+    //     PluginParameter { name: "here.app_id"; value: "WEdwl6NZWuCYL0ruUgIw" }
+    //     PluginParameter { name: "here.token"; value: "eyJhbGciOiJSUzUxMiIsImN0eSI6IkpXVCIsImlzcyI6IkhFUkUiLCJhaWQiOiJHOEMwR2YzZmxZajVybkswZFlGNyIsImlhdCI6MTU5MzM5NzUzMywiZXhwIjoxNTkzNDgzOTMzLCJraWQiOiJqMSJ9" }
+    //     PluginParameter { name: "here.proxy"; value: "system" }
+
+    // }
+
+
 
     center {
         latitude:52.769862
@@ -218,15 +268,32 @@ Map{
         }
     }
 
-    MapItemView{
-        model:disksModel
-        delegate:MapCircle{
-            border.color: "red"
-            border.width: 1
-            center: QtPositioning.coordinate(model.latitude, model.longitude)
-            radius: 53
-        }
-    }
+    // MapItemView{
+    //     model:disksModel
+    //     delegate:MapCircle{
+    //         border.color: "red"
+    //         border.width: 1
+    //         center: QtPositioning.coordinate(model.latitude, model.longitude)
+    //         radius: 53
+    //     }
+    // }
+
+    
+    // MapItemView{
+    //     model:disksModel
+    //     delegate:MapQuickItem{
+    //          sourceItem: Image{
+    //             id:waypointMarker
+    //             opacity: .75
+    //             sourceSize.width:80
+    //             sourceSize.height:80
+    //             source: "../images/marker.png"
+    //         }
+    //         coordinate: QtPositioning.coordinate(model.latitude, model.longitude)
+    //         anchorPoint.x: waypointMarker.width/2
+    //         anchorPoint.y: waypointMarker.height/2
+    //     }
+    // }
 
     MapItemView{
         id:transectItemView

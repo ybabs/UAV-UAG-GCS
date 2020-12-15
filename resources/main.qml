@@ -25,7 +25,9 @@ ApplicationWindow{
         }
 
         map = mapComponent.createObject(page);
-        map.activeMapType = map.supportedMapTypes[1]
+        map.activeMapType = map.supportedMapTypes[0]
+         //map.activeMapType = MapType.SatelliteMapDay
+
         map.zoomLevel = (map.maximumZoomLevel - map.minimumZoomLevel)/2
         map.tilt = 45
     }
