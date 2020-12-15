@@ -35,8 +35,8 @@ public:
     QObject *uavModel() const;
 
     // Callbacks
-    void M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
-    void M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
+    void A3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void A3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
     void N3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
     
