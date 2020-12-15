@@ -128,6 +128,8 @@ class GCS: public QObject
      void collisionAvoidance();
      void uavcaControl(gcs::Action &msg);
      void reset();
+     void SpinLoop();
+
 
      
 
@@ -149,6 +151,7 @@ class GCS: public QObject
     float sampling_time;
     bool mission_pause;
     int mav_id;
+    int ca_flag;
 
     ros::Publisher mission_param_publisher;
     ros::Publisher waypoint_publisher;

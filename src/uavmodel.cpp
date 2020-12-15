@@ -11,10 +11,7 @@ UavModel::UavModel(QObject *parent):
           uav_id(0)
 {
 
-     // Spin up ros node handle
-     QTimer * ros_timer = new QTimer(this);
-     connect(ros_timer, SIGNAL(timeout()), this, SLOT(SpinLoop()));
-     ros_timer->start(0);
+
 
     m100_battery_subscriber = nh.subscribe("/a3/battery_state", 10, &UavModel::A3batteryStateCallback, this);
     m100_gps_subscriber = nh.subscribe("/a3/gps_position", 10, &UavModel::A3gpsCallback, this);
@@ -35,16 +32,12 @@ UavModel::UavModel(QObject *parent):
         m_uavModel->appendRow(item);
     }
 
-   
+
 
 
 }
 
 
-void UavModel::SpinLoop()
-{
-    ros::spinOnce();
-}
 
 
 QObject *UavModel::uavModel() const

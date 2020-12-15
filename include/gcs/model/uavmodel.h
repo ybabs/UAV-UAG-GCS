@@ -49,7 +49,6 @@ public:
     
 public Q_SLOTS: // slots
     void updateModelData();
-    void SpinLoop();
     std::vector<QGeoCoordinate> getUavPositions();
 private:
     ros::NodeHandle nh;

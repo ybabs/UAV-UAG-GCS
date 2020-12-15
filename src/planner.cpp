@@ -5,6 +5,13 @@ GCS::GCS():
 active_mavs(4,0)
 {
 
+       // Spin up ros node handle
+  QTimer * ros_timer = new QTimer(this);
+  connect(ros_timer, SIGNAL(timeout()), this, SLOT(SpinLoop()));
+  ros_timer->start(0);
+
+
+  ca_flag = 0;
   initPublishers();
 
   ROS_INFO("Con Planner");
@@ -26,6 +33,25 @@ void GCS::initPublishers()
   drone_action_publisher = nh.advertise<gcs::Action>("gcs/mission_action", 1);
   active_mav_publisher = nh.advertise<std_msgs::Int32MultiArray>("gcs/active_mavs", 10);
 
+}
+
+void GCS::SpinLoop()
+{
+  //ros::Rate r(100);
+  
+  //while(ros::ok())
+ // {
+    //ROS_INFO("Running");
+    if(ca_flag == 1)
+    {
+     collisionAvoidance();
+    }
+     ros::spinOnce();
+    // r.sleep();
+
+ // }
+
+   
 }
 
 void GCS::land()
@@ -523,7 +549,10 @@ void GCS::startMission()
   // Waypoints if we are running missions for a single drone
   processMissionWaypoints();
   publishMessage(msg, 4);
+  // set CA flag to enable collision avoidance
+  ca_flag = 1;
   ROS_INFO("Starting Mission");
+
 }
 
 void GCS::processMissionWaypoints()
@@ -855,10 +884,13 @@ void GCS::reset()
   qml_gps_points.clear();
   mtsp_points.clear();
   tsp_points.clear();
+  // disable collison avoidance
+  ca_flag = 0;
 } 
 
 void GCS::collisionAvoidance()
 {
+  ROS_INFO("Collision Avoidance");
 
   std::vector<QGeoCoordinate> uav_pos = model.getUavPositions();
   int mat_size = uav_pos.size();
