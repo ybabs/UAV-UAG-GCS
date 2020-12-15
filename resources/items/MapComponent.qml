@@ -1,10 +1,10 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtPositioning 5.14
-import QtLocation 5.14
-import QtGraphicalEffects 1.14
-import QtQuick.Layouts 1.14
-import QtQuick.Window 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtPositioning 5.15
+import QtLocation 5.15
+import QtGraphicalEffects 1.15
+import QtQuick.Layouts 1.15
+import QtQuick.Window 2.15
 
 import "../utils/formatDist.js" as Helper
 
@@ -332,7 +332,7 @@ Map{
 
     Connections{
     target:appWindow
-        onClearMap:{
+        function onClearMap() {
 
             waypointModel.clear()
             disksModel.clear()

@@ -1,5 +1,5 @@
-import QtQuick 2.14
-import QtLocation 5.14
+import QtQuick 2.15
+import QtLocation 5.15
 
 MapPolyline {
     id: mainPolyline

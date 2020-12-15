@@ -890,7 +890,7 @@ void GCS::reset()
 
 void GCS::collisionAvoidance()
 {
-  ROS_INFO("Collision Avoidance");
+  //ROS_INFO("Collision Avoidance");
 
   std::vector<QGeoCoordinate> uav_pos = model.getUavPositions();
   int mat_size = uav_pos.size();
