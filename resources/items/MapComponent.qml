@@ -9,23 +9,28 @@ import QtQuick.Window 2.15
 import "../utils/formatDist.js" as Helper
 
 Map{
-    property MapCircle waypoint 
     id:map
     anchors.fill: parent
     property bool followme: true
-    property var pos
     property variant scaleLengths: [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000]
     
+    // MTSP model for the multiple
+    // UAV waypoints
     ListModel{
         id:disksModel
     } 
 
+    // Model to hold the corner
+    // coordinates for the disk coverage
+    // MTSP solver
     ListModel{
         id:boundingBoxModel
     }
 
+    // Model to hold coordinates for the 
+    // transect waypoints
     ListModel{
-    id:waypointModel
+    id:transectpointsModel
     }     
 
     ListModel{
@@ -297,7 +302,7 @@ Map{
 
     MapItemView{
         id:transectItemView
-        model:waypointModel
+        model:transectpointsModel
         delegate: MapQuickItem{
             coordinate: QtPositioning.coordinate(model.latitude, model.longitude)
             anchorPoint.x: image.width * 0.28
@@ -353,13 +358,13 @@ Map{
         id:transectPopup
 
         onWaypointGenerated:{  
-            waypointModel.clear()               
+            transectpointsModel.clear()               
             for(var i = 0; i < waypoints.count; i++){
-                waypointModel.append(waypoints.get(i))
+                transectpointsModel.append(waypoints.get(i))
             }    
             waypoints.clear()           
             console.log(waypoints.count)
-            console.log(waypointModel.count)
+            console.log(transectpointsModel.count)
         }  
     }
 
@@ -401,7 +406,7 @@ Map{
     target:appWindow
         function onClearMap() {
 
-            waypointModel.clear()
+            transectpointsModel.clear()
             disksModel.clear()
             boundingBoxModel.clear()
             markerModel.clear()

@@ -21,7 +21,7 @@ public:
 
   
   TspModel(QAbstractItemModel *parent = 0);
- Q_INVOKABLE void addPosition(const QGeoCoordinate &coordinate);
+  Q_INVOKABLE void addPosition(const QGeoCoordinate &coordinate);
   int rowCount(const QModelIndex &parent = QModelIndex() ) const ;
  // bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
  // bool removeRow(int row, const QModelIndex &parent = QModelIndex());

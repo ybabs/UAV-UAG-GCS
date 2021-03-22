@@ -4,22 +4,24 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 Rectangle{
-    width:260
+    width:150
     height:40
-    color: "#AEA79F"
+    color: "transparent"
     radius:10 
 
 
-    Text{
-        id: batteryText
-        text: '<b>Battery:</b>'
-        anchors.verticalCenter: parent.verticalCenter
+    // Text{
+    //     id: batteryText
+    //     text: '<b> Battery:</b>'
+    //     horizontalAlignment: Text.AlignHCenter
+    //     verticalAlignment: Text.AlignVCenter
+    //     anchors.fill: parent
+    //     font.pixelSize: 15
         
-    }
+    // }
  
     ListView{
         anchors{
-            left: batteryText.right
             leftMargin: 5
         }
         width: parent.width
@@ -38,9 +40,12 @@ Rectangle{
             width:40
             Text{
                  text:model.battery
-                 anchors.verticalCenter: parent.verticalCenter 
-                 anchors.left: parent.left
-                 font.pixelSize: 15
+                 anchors.fill: parent
+                 fontSizeMode: Text.Fit
+                 font.pixelSize: 20
+                 minimumPixelSize: 8
+                 horizontalAlignment: Text.AlignHCenter
+                 verticalAlignment: Text.AlignVCenter
                  onTextChanged: {
                      if(model.battery > 50) {statusRect.color = "#53d769"; return;}
                      if(model.battery < 20) {statusRect.color = "#ff0000"; return;}  
