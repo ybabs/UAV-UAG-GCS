@@ -63,36 +63,36 @@ Map{
         scaleText.text = text
     }
 
-    plugin:Plugin{
-        name:"mapboxgl"
-        PluginParameter {
-            name: "mapboxgl.mapping.use_fbo"
-            value: true
-        }
+    // plugin:Plugin{
+    //     name:"mapboxgl"
+    //     PluginParameter {
+    //         name: "mapboxgl.mapping.use_fbo"
+    //         value: true
+    //     }
 
-        PluginParameter {
-            name: "mapboxgl.mapping.items.insert_before"
-            value: "aerialway"
-        }
+    //     PluginParameter {
+    //         name: "mapboxgl.mapping.items.insert_before"
+    //         value: "aerialway"
+    //     }
 
-        PluginParameter {
-            name: "mapboxgl.mapping.cache.directory";
-            value: "~/esri_cache"
-        }
-        PluginParameter{
-            name:"mapboxgl.access_token"
-            value:"sk.eyJ1IjoibWFza2VkYWZyaWNhbiIsImEiOiJja2lxNWg3eWUwY2lpMnlyeG53bnBmdDVwIn0.-5LFYYl2fmGwEsrGr8g3nA"
-        }
+    //     PluginParameter {
+    //         name: "mapboxgl.mapping.cache.directory";
+    //         value: "~/esri_cache"
+    //     }
+    //     PluginParameter{
+    //         name:"mapboxgl.access_token"
+    //         value:"sk.eyJ1IjoibWFza2VkYWZyaWNhbiIsImEiOiJja2lxNWg3eWUwY2lpMnlyeG53bnBmdDVwIn0.-5LFYYl2fmGwEsrGr8g3nA"
+    //     }
 
-        PluginParameter{
-            name: "mapbox.mapping.additional_map_ids"; value: "mapbox.mapbox-streets-v8"
-        }
+    //     PluginParameter{
+    //         name: "mapbox.mapping.additional_map_ids"; value: "mapbox.mapbox-streets-v8"
+    //     }
 
-         PluginParameter{
-            name: "mapboxgl.api_base_url"; value: "https://api.mapbox.com"
-        }
+    //      PluginParameter{
+    //         name: "mapboxgl.api_base_url"; value: "https://api.mapbox.com"
+    //     }
         
-     }
+    //  }
 
     //     plugin:Plugin{
     //     name: "mapbox"//tested 7.16.2020
@@ -106,12 +106,12 @@ Map{
     // }
 
 
-    // plugin:Plugin{
-    // name:"esri"
+    plugin:Plugin{
+    name:"esri"
     
 
 
-    // }
+    }
 
     // plugin:Plugin {
     //     name: "here"

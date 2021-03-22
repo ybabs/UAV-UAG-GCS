@@ -26,22 +26,26 @@ Rectangle{
         height:parent.height
         spacing: 4
         model:mav.uavModel
-        orientation:ListView.Horizontal
-        delegate:batteryDelegate
-        focus: true
+        orientation:ListView.Horizontal      
+        delegate:batteryDelegate       
     }
 
     Component{
         id:batteryDelegate
-        Box {
+        Rectangle {
+            id:statusRect
             height:40
             width:40
-             Text{
+            Text{
                  text:model.battery
-                anchors.verticalCenter: parent.verticalCenter 
-                anchors.left: parent.left
+                 anchors.verticalCenter: parent.verticalCenter 
+                 anchors.left: parent.left
                  font.pixelSize: 15
-
+                 onTextChanged: {
+                     if(model.battery > 50) {statusRect.color = "#53d769"; return;}
+                     if(model.battery < 20) {statusRect.color = "#ff0000"; return;}  
+                     if(model.battery > 20 && model.battery < 49) {statusRect.color="#FFBF00"; return;}
+                 }
              }
              
              

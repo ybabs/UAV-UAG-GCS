@@ -16,7 +16,6 @@ ApplicationWindow{
 
     signal clearMap()
 
-
     function createMap()
     {
         if(map)
@@ -25,9 +24,7 @@ ApplicationWindow{
         }
 
         map = mapComponent.createObject(page);
-        map.activeMapType = map.supportedMapTypes[0]
-         //map.activeMapType = MapType.SatelliteMapDay
-
+        map.activeMapType = map.supportedMapTypes[1]
         map.zoomLevel = (map.maximumZoomLevel - map.minimumZoomLevel)/2
         map.tilt = 45
     }
