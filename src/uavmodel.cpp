@@ -52,7 +52,7 @@ void UavModel::A3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr&
   // based on a 4S LiHV battery. 
   // Low votage per cell = 3.6V  3.6  * 4 * 100 = 1440
   //Fully charged  = 4.35V. 4.35 * 4 * 100 = 2520; 
-  double value = ((battery_percent - 1440) / (1740 - 1440)) * 100; 
+  int value = ((battery_percent - 1440) / (1740 - 1440)) * 100; 
   value = (int) (100 * value) / 100.0;
   batteries[0] = value;
 }
@@ -65,7 +65,7 @@ void UavModel::N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr&
   // based on a 4S LiHV battery. 
   // Low votage per cell = 3.6V  3.6  * 4 * 100 = 1440
   //Fully charged  = 4.35V. 4.35 * 4 * 100 = 2520; 
-  double value = ((battery_percent - 1440) / (1740 - 1440)) * 100; 
+  int value = ((battery_percent - 1440) / (1740 - 1440)) * 100; 
   value = (int) (100 * value) / 100.0;
   batteries[1] = value;
   
