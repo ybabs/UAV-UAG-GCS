@@ -39,11 +39,12 @@ public:
     void A3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
     void N3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
+    void M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
+    void M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
     
     //void uav4gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     //void uav4batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
-   // void uav3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
-   // void uav3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
+
     QHash<int, QByteArray> roleNames() const ;
     
     
@@ -64,8 +65,8 @@ private:
     ros::Subscriber n3_gps_subscriber;
     //ros::Subscriber uav4_battery_subscriber;
    // ros::Subscriber uav4_gps_subscriber;
-    // ros::Subscriber uav3_battery_subscriber;
-    //ros::Subscriber uav3_gps_subscriber;
+    ros::Subscriber a3_battery_subscriber;
+    ros::Subscriber a3_gps_subscriber;
 
 };
 

@@ -13,10 +13,12 @@ UavModel::UavModel(QObject *parent):
 
 
 
-    m100_battery_subscriber = nh.subscribe("/a3/battery_state", 10, &UavModel::A3batteryStateCallback, this);
-    m100_gps_subscriber = nh.subscribe("/a3/gps_position", 10, &UavModel::A3gpsCallback, this);
+    m100_battery_subscriber = nh.subscribe("m100/battery_state", 10, &UavModel::M100batteryStateCallback, this);
+    m100_gps_subscriber = nh.subscribe("m100/gps_position", 10, &UavModel::M100gpsCallback, this);
     n3_battery_subscriber = nh.subscribe("n3/battery_state", 10, &UavModel::N3batteryStateCallback, this);
     n3_gps_subscriber = nh.subscribe("n3/gps_position", 10, &UavModel::N3gpsCallback, this);
+    a3_battery_subscriber = nh.subscribe("a3/battery_state", 10, &UavModel::A3batteryStateCallback, this);
+    a3_gps_subscriber = nh.subscribe("a3/gps_position", 10, &UavModel::A3gpsCallback, this);
 
 
     connected_clients = 4;
@@ -31,9 +33,6 @@ UavModel::UavModel(QObject *parent):
         item->setData(QVariant::fromValue(5), NameRole);
         m_uavModel->appendRow(item);
     }
-
-
-
 
 }
 
@@ -73,6 +72,14 @@ void UavModel::N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr&
 }
 
 
+void  UavModel::M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg)
+{
+    // M100 reports battery in percentage
+    double battery = msg->percentage;
+    batteries[2] = battery;
+}
+
+
 void UavModel::N3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
     QGeoCoordinate uav_pos;
@@ -93,6 +100,18 @@ void UavModel::A3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 
     uav_positions[0] = uav_pos;
  
+
+}
+
+void UavModel::M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
+{
+
+    QGeoCoordinate uav_pos;
+    uav_pos.setLatitude(msg->latitude);
+    uav_pos.setLongitude(msg->longitude);
+    uav_pos.setAltitude(msg->altitude);
+
+    uav_positions[2] = uav_pos;
 
 }
 
