@@ -4,12 +4,20 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 Popup{
+    id: singleModePopupMenu
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
     height: 230
     visible: false
     focus:true
     signal okButtonClicked
+    property var waypoint
+
+
+    function addWaypoint(coordinate)
+    {
+        singleModePopupMenu.waypoint = coordinate
+    }
 
 
     ColumnLayout{
@@ -59,9 +67,14 @@ Popup{
                     id:okPopupButton
                     text: "OK"
                     onClicked: {
-                        planner.addWaypoint(waypoint.center.latitude, waypoint.center.longitude,
-                                            planner.altitude, planner.sampleFlag,
-                                            planner.samplingTime)
+
+                        onWaypointClickedSignal:{
+                            planner.addWaypoint(waypoint.center.latitude, waypoint.center.longitude,
+                            planner.altitude, planner.sampleFlag,
+                            planner.samplingTime)
+
+                        }
+
                         okButtonClicked()
                         missionPopup.close();
                     }
