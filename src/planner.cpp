@@ -461,6 +461,8 @@ void GCS::setMissionParams()
 {
   gcs::Missionparameters msg;
   msg.header.stamp = ros::Time::now();
+  // Run missions at a conservative 
+  uav_speed = 5;
   msg.uavSpeed = uav_speed;
   // Force Mission to always RTH
   msg.missionEndAction = 2;
@@ -550,7 +552,10 @@ void GCS::startMission()
   processMissionWaypoints();
   publishMessage(msg, 4);
   // set CA flag to enable collision avoidance
-  ca_flag = 1;
+  ca_flag = 0;
+  // clear single mission list after sending current
+  // set of waypoints
+  single_mission_list.clear();
   ROS_INFO("Starting Mission");
 
 }

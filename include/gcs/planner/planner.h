@@ -160,7 +160,7 @@ class GCS: public QObject
     ros::Publisher active_mav_publisher;
 
     std::vector<gcs::Waypoint> transect_list;
-    std::vector<gcs::Waypoint> single_mission_list;
+    std::vector<gcs::Waypoint> single_mission_list; // used to waypoints for single mission mode;
     QVector<QGeoCoordinate> qml_gps_points; // used to store GPS waypoints which are displayed on the UI
     QVariantList mtsp_points;
     QVariantList tsp_points;
