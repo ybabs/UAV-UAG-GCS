@@ -47,6 +47,7 @@ ApplicationWindow{
 
         onMissionModeChanged:{
             missionType = searchBar.missionMode
+            planner.missionType = missionType;
              console.debug("Mission Mode:" + missionMode)
 
         }

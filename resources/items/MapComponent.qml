@@ -220,32 +220,32 @@ Map{
         }
     }
 
-    // MapItemView{
-    //     model:disksModel
-    //     delegate:MapCircle{
-    //         border.color: "red"
-    //         border.width: 1
-    //         center: QtPositioning.coordinate(model.latitude, model.longitude)
-    //         radius: 53
-    //     }
-    // }
+    MapItemView{
+        model:disksModel
+        delegate:MapCircle{
+            border.color: "red"
+            border.width: 1
+            center: QtPositioning.coordinate(model.latitude, model.longitude)
+            radius: 53
+        }
+    }
 
     
-    // MapItemView{
-    //     model:disksModel
-    //     delegate:MapQuickItem{
-    //          sourceItem: Image{
-    //             id:waypointMarker
-    //             opacity: .75
-    //             sourceSize.width:80
-    //             sourceSize.height:80
-    //             source: "../images/marker.png"
-    //         }
-    //         coordinate: QtPositioning.coordinate(model.latitude, model.longitude)
-    //         anchorPoint.x: waypointMarker.width/2
-    //         anchorPoint.y: waypointMarker.height/2
-    //     }
-    // }
+    MapItemView{
+        model:disksModel
+        delegate:MapQuickItem{
+             sourceItem: Image{
+                id:waypointMarker
+                opacity: .75
+                sourceSize.width:80
+                sourceSize.height:80
+                source: "../images/marker.png"
+            }
+            coordinate: QtPositioning.coordinate(model.latitude, model.longitude)
+            anchorPoint.x: waypointMarker.width/2
+            anchorPoint.y: waypointMarker.height/2
+        }
+    }
 
     MapItemView{
         id:transectItemView

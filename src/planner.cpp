@@ -142,6 +142,7 @@ void GCS::takeoff()
 
 }
 
+
 int GCS::getMavId()
 {
   return mav_id;
@@ -159,7 +160,7 @@ void GCS::setMavId(int id)
         active_mavs[0] = 1;
         for(auto &mav: active_mavs )
         {
-          ROS_INFO( "Mav %d", mav);
+          //ROS_INFO( "Mav %d", mav);
         }
         break;
 
@@ -167,7 +168,7 @@ void GCS::setMavId(int id)
           active_mavs[1] = 1; 
           for(auto &mav: active_mavs )
           {
-            ROS_INFO( "Mav %d", mav);
+           // ROS_INFO( "Mav %d", mav);
           }
           break;
 
@@ -175,7 +176,7 @@ void GCS::setMavId(int id)
           active_mavs[2] = 1;
           for(auto &mav: active_mavs )
           {
-            ROS_INFO( "Mav %d", mav);
+            //ROS_INFO( "Mav %d", mav);
           }
           break;
          
@@ -183,7 +184,7 @@ void GCS::setMavId(int id)
           active_mavs[3] = 1;
           for(auto &mav: active_mavs )
           {
-            ROS_INFO( "Mav %d", mav);
+           // ROS_INFO( "Mav %d", mav);
           }
           break;
 
@@ -191,7 +192,7 @@ void GCS::setMavId(int id)
             active_mavs[0] = 0;
             for(auto &mav: active_mavs )
             {
-              ROS_INFO( "Mav %d", mav);
+              //ROS_INFO( "Mav %d", mav);
             }
             break;
 
@@ -199,7 +200,7 @@ void GCS::setMavId(int id)
             active_mavs[1] = 0;
             for(auto &mav: active_mavs )
             {
-              ROS_INFO( "Mav %d", mav);
+              //ROS_INFO( "Mav %d", mav);
             }   
             break;
 
@@ -207,7 +208,7 @@ void GCS::setMavId(int id)
             active_mavs[2] = 0;
             for(auto &mav: active_mavs )
             {
-              ROS_INFO( "Mav %d", mav);
+             // ROS_INFO( "Mav %d", mav);
             }
             break;
 
@@ -215,7 +216,7 @@ void GCS::setMavId(int id)
             active_mavs[3] = 0;
             for(auto &mav: active_mavs )
             {
-              ROS_INFO( "Mav %d", mav);
+             // ROS_INFO( "Mav %d", mav);
             }
             break;
 
@@ -266,16 +267,29 @@ void GCS::uploadWaypoints()
   //return number of active mavs
   int active_uav_count  = std::count(active_mav_copy.begin(), active_mav_copy.end(), active_key); 
 
-  ROS_INFO("Transect List-------");
+ 
 
   // If there are active UAVs
   if(active_uav_count > 0)
   {
   
     // split waypoints based on the number of active uavs.
-    std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = mtspTour(transect_list, active_uav_count);      
-    int wp_size = truncated_waypoints.size();
+    std::vector<std::vector<gcs::Waypoint>> truncated_waypoints;
 
+    // check if you are doing a MTSP or a simple transect list here
+     if(mission_type == 1)
+     {
+       ROS_INFO("Swarm mode");
+       truncated_waypoints = mtspTour(transect_list, active_uav_count); 
+     }
+
+     else if (mission_type == 2)
+     {
+        ROS_INFO("Transect List-------");
+        truncated_waypoints = splitTransectWaypoints(transect_list, active_uav_count); 
+     } 
+
+    int wp_size = truncated_waypoints.size();
     ROS_INFO("Waypoint Routes split %d", wp_size);
     ROS_INFO("Number of active drones %d", active_uav_count);
 
@@ -629,6 +643,39 @@ bool GCS::getPlayPause()
    return mission_pause;
 }
 
+int GCS::getMissionType()
+{
+  return mission_type;
+}
+
+void GCS::setMissionType(int mode)
+{
+  if(mission_type != mode)
+  {
+    mission_type = mode;
+    switch (mission_type)
+    {
+    case 0:
+      ROS_INFO("Single Mode");
+      break;
+    case 1:
+      ROS_INFO("MTSP Mode");
+      break;
+    case 2:
+      ROS_INFO("Transect Mode");
+      break; 
+    
+    default:
+      break;
+    }
+
+
+
+    missionTypeChanged();
+  } 
+}
+
+
 ///Generates a list of waypoints when the "Generate" Button is clicked on 
 /// the GUI based on the start and end poisitons and number of waypoints
 /// required. 
@@ -672,7 +719,15 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
       start_coord.setLongitude(start_pos.longitude);
       end_coord.setLatitude(end_pos.latitude);
       end_coord.setLongitude(end_pos.longitude);
-
+      
+      // add start coordinate to transect list
+      start_pos.altitude = 10;
+      start_pos.sample = 1;
+      start_pos.sampleTime = 20;
+      end_pos.altitude = 10;
+      end_pos.sample = 1;
+      end_pos.sampleTime = 20;
+      transect_list.push_back(start_pos);
       qml_gps_points.append(start_coord);
 
       // Add waypoints to the:
@@ -696,6 +751,7 @@ void GCS::addGeneratedWaypoints(QString start, QString end, int num_locations)
 
         }
         qml_gps_points.append(end_coord);
+         transect_list.push_back(end_pos);
         uav_route.clear();
     }  
 
@@ -839,6 +895,8 @@ void GCS:: generateDisks(QString center, double distance, double samplingTime)
         transect_list.push_back(uav_route[i]);
     }
   }
+
+  ROS_INFO("number of waypoints: %d", transect_list.size());
 }
 
 /// converts an input string to a gcs::Waypoint type
@@ -962,4 +1020,31 @@ void GCS::uavcaControl(gcs::Action &msg)
 {
   msg.header.stamp = ros::Time::now();
   drone_action_publisher.publish(msg);
+}
+
+/// Splits the waypoints in the transect list
+/// between the number of active drones
+/// @param vec reference to the waypoints list
+/// @param n number of active drones
+/// @returns 2D vector containing waypoint list for each drone
+std::vector<std::vector<gcs::Waypoint>> GCS::splitTransectWaypoints(std::vector<gcs::Waypoint>& vec , size_t n)
+{
+    std::vector<std::vector<gcs::Waypoint>> rtn;
+
+    size_t length = vec.size() / n;
+    size_t remain = vec.size() % n;
+
+    size_t begin = 0;
+    size_t end = 0;
+
+    for(size_t i = 0; i < std::min(n, vec.size()); i++)
+    {
+      end += (remain > 0) ? (length + !!(remain--)) : length;
+
+      rtn.push_back(std::vector<gcs::Waypoint>(vec.begin() + begin, vec.begin() + end));
+
+      begin = end;
+    }
+
+     return rtn;
 }

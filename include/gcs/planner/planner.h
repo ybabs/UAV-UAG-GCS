@@ -50,6 +50,7 @@ class GCS: public QObject
     Q_PROPERTY(float samplingTime READ getSamplingTime WRITE setSamplingTime NOTIFY samplingTimeSet)
     Q_PROPERTY(int sampleFlag READ getSamplingFlag WRITE setSamplingFlag NOTIFY samplingFlagSet )
     Q_PROPERTY(int missionStatusFlag READ getPlayPause WRITE setPlayPause NOTIFY pauseSet )
+    Q_PROPERTY(int missionType READ getMissionType WRITE setMissionType NOTIFY missionTypeChanged)
     Q_PROPERTY(int mavId READ getMavId WRITE setMavId NOTIFY mavIdSet)
     Q_PROPERTY(QVariantList trackpoints READ getPointVector)
     Q_PROPERTY(QVariantList mtspPath READ getMtspVector)
@@ -72,6 +73,12 @@ class GCS: public QObject
 
     };
 
+    enum MissionType{
+        SINGLE,
+        SWARM,
+        TRANSECT
+    };
+
     enum WaypointTask
     {
         LAND
@@ -82,6 +89,8 @@ class GCS: public QObject
     void setDroneSpeed(int speed); //    
     int getDroneSpeed(); //
     void setHydrophoneRange(int range);
+    int getMissionType();
+    void setMissionType(int mission_type);
     int getHydrophoneRange();
     void setAltitude(float alt); //
     float getAltitude(); //
@@ -97,6 +106,7 @@ class GCS: public QObject
     QVariantList getMtspVector();
     QVariantList getTspVector();
     gcs::Waypoint convertTextToWaypoint(std::string input_string);
+    std::vector<std::vector<gcs::Waypoint>> splitTransectWaypoints(std::vector<gcs::Waypoint> &vec, size_t n);
     QGeoCoordinate convertWaypointToQGeoCoordinate(gcs::Waypoint &input_coord);
 
 
@@ -108,6 +118,7 @@ class GCS: public QObject
         void samplingTimeSet();
         void pauseSet();
         void mavIdSet();
+        void missionTypeChanged();
 
     public slots:   
      void land();
@@ -152,6 +163,7 @@ class GCS: public QObject
     bool mission_pause;
     int mav_id;
     int ca_flag;
+    int mission_type;
 
     ros::Publisher mission_param_publisher;
     ros::Publisher waypoint_publisher;
