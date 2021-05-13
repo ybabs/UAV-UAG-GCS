@@ -414,7 +414,9 @@ std::vector<std::vector<gcs::Waypoint>> GCS::mtspTour(std::vector<gcs::Waypoint>
     for(std::size_t i = 0; i < sol.size(); i++)
     {
         QVariantList inner2;
-        for(std::size_t j = 0; j < sol.at(i).size(); j++)
+        // Exclude the home points used from the head and tail 
+        // of the waypoints 
+        for(std::size_t j = 1; j < sol.at(i).size()-1; j++)
         {
          
             int indexA = sol.at(i).at(j);
@@ -476,7 +478,7 @@ void GCS::setMissionParams()
   gcs::Missionparameters msg;
   msg.header.stamp = ros::Time::now();
   // Run missions at a conservative 
-  uav_speed = 5;
+  uav_speed = 15;
   msg.uavSpeed = uav_speed;
   // Force Mission to always RTH
   msg.missionEndAction = 2;
@@ -975,7 +977,7 @@ void GCS::collisionAvoidance()
 
             // check horizontal distance between drone i and j
             // use a 3 metre separation rule first
-            if(dist_matrix(i,j) >= 0 && dist_matrix(i<j) <= 3)
+            if(dist_matrix(i,j) >= 0 && dist_matrix(j,i) <= 3)
             {
                // check altitude difference
                double z_diff = abs(uav_pos.at(i).altitude() -  uav_pos.at(j).altitude());
