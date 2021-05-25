@@ -29,6 +29,10 @@ void GCS::initPublishers()
   active_mav_publisher = nh.advertise<std_msgs::Int32MultiArray>("gcs/active_mavs", 10);
 
   ca_prio_subscriber = nh.subscribe("uav_agent/priority", 10, &GCS::PrioSubscriberCallback, this);
+  n3_flight_status_subscriber = nh.subscribe("n3/flight_status", 10, &GCS::m100flightStatusCallback, this);
+  m100_flight_status_subscriber = nh.subscribe("m100/flight_status", 10, &GCS::n3flightStatusCallback, this);
+  a3_flight_status_subscriber = nh.subscribe("a3/flight_status", 10, &GCS::a3flightStatusCallback, this);
+
 }
 
 void GCS::SpinLoop()
@@ -591,7 +595,7 @@ void GCS::startMission()
   processMissionWaypoints();
   publishMessage(msg, 4);
   // set CA flag to enable collision avoidance
-  ca_flag = 1;
+  //ca_flag = 0;
   // clear single mission list after sending current
   // set of waypoints
   single_mission_list.clear();
@@ -1039,6 +1043,7 @@ void GCS::collisionAvoidance()
 
       else if (ca_prio_flag == CA_FLAG_PRIORITY_RELEASED)
       {
+        gcs::Action msg;
         msg.id = i;
         msg.droneaction = 6;
         uavcaControl(msg);
@@ -1055,9 +1060,24 @@ void GCS::collisionAvoidance()
   //std::cout << "---------------------------------------------------"<< std::endl;
 }
 
-void PrioSubscriberCallback(const std_msgs::UInt8::ConstPtr &msg)
+void GCS::PrioSubscriberCallback(const std_msgs::UInt8::ConstPtr &msg)
 {
-  ca_prio_flag = msg->id;
+  ca_prio_flag = msg->data;
+}
+
+void GCS::m100flightStatusCallback(const std_msgs::UInt8::ConstPtr& msg)
+{
+    m100_flight_status = msg->data;
+}
+
+void GCS::n3flightStatusCallback(const std_msgs::UInt8::ConstPtr& msg)
+{
+    n3_flight_status = msg->data;
+}
+
+void GCS::a3flightStatusCallback(const std_msgs::UInt8::ConstPtr& msg)
+{
+    a3_flight_status = msg->data;
 }
 
 void GCS::uavcaControl(gcs::Action &msg)

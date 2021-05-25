@@ -182,7 +182,11 @@ class GCS: public QObject
     ros::Publisher mission_pause_publisher;
     ros::Publisher drone_action_publisher;
     ros::Publisher active_mav_publisher;
-    ros::Subscriber ;
+    ros::Subscriber ca_prio_subscriber;
+    ros::Subscriber n3_flight_status_subscriber;
+    ros::Subscriber m100_flight_status_subscriber;
+    ros::Subscriber a3_flight_status_subscriber;
+
 
     std::vector<gcs::Waypoint> transect_list;
     std::vector<gcs::Waypoint> single_mission_list; // used to waypoints for single mission mode;
