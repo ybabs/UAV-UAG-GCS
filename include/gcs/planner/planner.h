@@ -36,6 +36,9 @@
 #include <iostream>
 #include <algorithm>
 
+#define CA_FLAG_PRIORITY_RELEASED 1
+#define CA_FLAG_PRIORITY_FREE 0
+#define CA_IN_PROGRESS 2
 
 
 
@@ -108,6 +111,10 @@ class GCS: public QObject
     gcs::Waypoint convertTextToWaypoint(std::string input_string);
     std::vector<std::vector<gcs::Waypoint>> splitTransectWaypoints(std::vector<gcs::Waypoint> &vec, size_t n);
     QGeoCoordinate convertWaypointToQGeoCoordinate(gcs::Waypoint &input_coord);
+    void PrioSubscriberCallback(const std_msgs::UInt8::ConstPtr& msg);
+    void m100flightStatusCallback(const std_msgs::UInt8::ConstPtr& msg);
+    void n3flightStatusCallback(const std_msgs::UInt8::ConstPtr& msg);
+    void a3flightStatusCallback(const std_msgs::UInt8::ConstPtr& msg);
 
 
     signals:
@@ -163,13 +170,19 @@ class GCS: public QObject
     bool mission_pause;
     int mav_id;
     int ca_flag;
+    int ca_prio_flag;
     int mission_type;
+
+    uint8_t m100_flight_status;
+    uint8_t a3_flight_status;
+    uint8_t n3_flight_status;
 
     ros::Publisher mission_param_publisher;
     ros::Publisher waypoint_publisher;
     ros::Publisher mission_pause_publisher;
     ros::Publisher drone_action_publisher;
     ros::Publisher active_mav_publisher;
+    ros::Subscriber ;
 
     std::vector<gcs::Waypoint> transect_list;
     std::vector<gcs::Waypoint> single_mission_list; // used to waypoints for single mission mode;

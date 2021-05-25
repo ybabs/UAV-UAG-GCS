@@ -11,11 +11,12 @@ void MTSP::initialiseGA(std::vector<gcs::Waypoint>& wp, int active_drones)
     number_of_drones = active_drones;
      mut_rate = 0.01;
     generations = 0;
+    //best_fitness = 100000000;
     best_fitness = 0;
     generatePopulation();
     computeFitness();
 
-    solve(200);
+    solve(500);
 
 }
 
@@ -94,9 +95,12 @@ void MTSP::computeFitness()
     {
         population.at(i).computeFitness();
         double fit = population.at(i).getFitness();
+        //ROS_INFO("fit %f", fit);
         if(fit > best_fitness)
         {
+            
             best_fitness = fit;
+            //ROS_INFO("Best fitness; %.10e\n", best_fitness);
             best_gene = population.at(i);
         }
     }
@@ -104,5 +108,10 @@ void MTSP::computeFitness()
 
 std::vector<std::vector<size_t>> MTSP::getBestOrder()
 {
-    return best_gene.getSolution();
+   
+
+    double best_answer = best_gene.getFitness();
+    ROS_INFO("Best fitness; %.10e\n", best_answer);
+
+     return best_gene.getSolution();
 }

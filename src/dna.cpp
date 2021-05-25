@@ -60,7 +60,10 @@ void DNA::computeFitness()
     }
 
     record_distance = total_distance;
-    fitness = 1/(pow(total_distance, 8) + 1);
+    //fitness = record_distance;
+    // ROS_INFO("Best distance is %f", record_distance);
+     fitness = 1/pow(total_distance, 2);
+    //fitness = total_distance;
 }
 
 void DNA::mutate(float mutationRate)

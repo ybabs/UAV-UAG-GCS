@@ -226,7 +226,7 @@ Map{
             border.color: "red"
             border.width: 1
             center: QtPositioning.coordinate(model.latitude, model.longitude)
-            radius: 53
+            radius: 85
         }
     }
 
