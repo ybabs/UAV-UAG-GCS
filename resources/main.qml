@@ -23,10 +23,14 @@ ApplicationWindow{
             map.destroy()
         }
 
+        
+        
+        
         map = mapComponent.createObject(page);
-        map.activeMapType = map.supportedMapTypes[1]
+        map.activeMapType = map.supportedMapTypes[5]
+        //map.activeMapType = MapType.CustomMap 
         map.zoomLevel = (map.maximumZoomLevel - map.minimumZoomLevel)/2
-        map.tilt = 45
+        map.tilt = 0
     }
 
 

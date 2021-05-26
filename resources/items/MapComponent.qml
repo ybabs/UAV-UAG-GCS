@@ -71,8 +71,34 @@ Map{
     }
 
    
+    // plugin:Plugin{
+    // name:"esri"
+    // }
+
     plugin:Plugin{
-    name:"esri"
+        name:"osm"
+
+        PluginParameter {
+            name: 'osm.mapping.offline.directory'
+            value: ':/offline_map/'
+        }
+
+        // PluginParameter {
+        //     name: "osm.mapping.providersrepository.disabled"
+        //      value: true
+        // }
+
+            //     PluginParameter {
+            //     name: 'osm.mapping.cache.directory'                
+            //     value: 'cache/'
+            // }
+
+    //     PluginParameter {
+    //         name: "osm.mapping.providersrepository.address"
+    //         value: 'qrc:/offline_map/'
+    //     }
+
+
     }
 
     center {
