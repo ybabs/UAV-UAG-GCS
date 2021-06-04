@@ -80,23 +80,25 @@ Map{
 
         PluginParameter {
             name: 'osm.mapping.offline.directory'
-            value: ':/offline_map/'
+            value: 'offline_map/'
         }
 
-        // PluginParameter {
-        //     name: "osm.mapping.providersrepository.disabled"
-        //      value: true
-        // }
+        PluginParameter {
+            name: "osm.mapping.providersrepository.disabled"
+             value: true
+        }
 
-            //     PluginParameter {
-            //     name: 'osm.mapping.cache.directory'                
-            //     value: 'cache/'
-            // }
+                PluginParameter {
+                name: 'osm.mapping.cache.directory'                
+                value: 'cache/'
+            }
 
-    //     PluginParameter {
-    //         name: "osm.mapping.providersrepository.address"
-    //         value: 'qrc:/offline_map/'
-    //     }
+        PluginParameter { name: "osm.mapping.highdpi_tiles"; value: true }
+
+        PluginParameter {
+            name: "osm.mapping.providersrepository.address"
+            value: 'qrc:/qt-osm-map-providers/'
+        }
 
 
     }

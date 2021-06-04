@@ -1,3 +1,5 @@
 /.history
 /.vscode
 /cache/
+/resources/qt-osm-map-providers/
+/offline_map/
