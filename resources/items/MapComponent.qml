@@ -304,6 +304,15 @@ Map{
         }
     }
 
+    MtspPopupComponent{
+        id:mtspPopup
+
+        onOkButtonClicked:{
+            markerModel.append({"position":pos})
+            console.log(pos.latitude + ", " + pos.longitude)
+        }
+    }
+
 
     DiskCoverageComponent{
         id:diskGenPopup
@@ -372,6 +381,18 @@ Map{
             {
                 console.log("Transect Mode")
                 transectPopup.open()
+            }
+
+            else if(missionMode == 3)
+            {
+                var waypoint = Qt.createQmlObject('import QtLocation 5.14;\MapCircle {radius: 5; color: "red"; opacity: 0.5; border.width: 0.5}', map)
+                waypoint.center = map.toCoordinate(Qt.point(mouse.x, mouse.y))
+                pos = map.toCoordinate(Qt.point(mouse.x,mouse.y));
+                mtspPopup.addWaypoint(waypoint)
+                mtspPopup.open()
+                console.log("MTSP Mode")
+                
+
             }
 
         }

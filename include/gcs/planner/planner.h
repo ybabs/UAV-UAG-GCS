@@ -136,6 +136,7 @@ class GCS: public QObject
      void armMav();
      void uploadWaypoints();
      void addWaypoint(double lat, double lon, float alt,  int sample, float sampleTime);
+     void addMTSPWaypoint(double lat, double lon, int sample, float sampleTime);
      void addGeneratedWaypoints(QString start, QString end, int num_locations);
      void generateDisks(QString center, double distance, double samplingTime);
      void publishMessage(gcs::Action &msg, int action);

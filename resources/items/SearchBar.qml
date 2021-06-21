@@ -47,6 +47,7 @@ ToolBar{
                 ListElement {text: "Single Mode"}
                 ListElement{text: "Swarm Mode"}
                 ListElement{text: "Transect Mode"}
+                ListElement{text: "MTSP Mode"}
             }
 
             onCurrentIndexChanged:{

@@ -20,5 +20,6 @@
         <file>items/StatusBar.qml</file>
         <file>items/DiskCoverageComponent.qml</file>
         <file>items/MavCheckBox.qml</file>
+        <file>items/MtspPopupComponent.qml</file>
     </qresource>
 </RCC>
