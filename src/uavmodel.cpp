@@ -65,7 +65,8 @@ void UavModel::N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr&
   // based on a 4S LiHV battery. 
   // Low votage per cell = 3.6V  3.6  * 4 * 100 = 1440
   //Fully charged  = 4.35V. 4.35 * 4 * 100 = 2520; 
-  int value = ((battery_percent - 1440) / (1740 - 1440)) * 100; 
+//   int value = ((battery_percent - 1440) / (1740 - 1440)) * 100; 
+int value = ((battery_percent - 2160) / (2520 - 2160)) * 100; 
   value = (int) (100 * value) / 100.0;
   batteries[1] = value;
   
@@ -117,6 +118,18 @@ void UavModel::M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 
 std::vector<QGeoCoordinate> UavModel::getUavPositions()
 {
+
+    #if SIM_MODE == 1
+        SetSimPositions();
+    #endif
+    
+    return uav_positions;
+}
+
+void UavModel::SetSimPositions()
+{
+
+    ROS_INFO("Setting Simulated UAV Homepoints");
     QGeoCoordinate uav_pos;
     uav_pos.setLatitude(52.770104);
     uav_pos.setLongitude(-1.231820);
@@ -137,8 +150,7 @@ std::vector<QGeoCoordinate> UavModel::getUavPositions()
     uav_positions[1] = uav_pos2;
     uav_positions[2] = uav_pos3;
     uav_positions[3] = uav_pos4;
-    
-    return uav_positions;
+
 }
 
 void UavModel::updateModelData()

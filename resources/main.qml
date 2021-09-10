@@ -14,6 +14,7 @@ ApplicationWindow{
     property variant searchRegionItem
     property int missionType
 
+
     signal clearMap()
 
     function createMap()
@@ -21,14 +22,9 @@ ApplicationWindow{
         if(map)
         {
             map.destroy()
-        }
-
-        
-        
-        
+        }        
         map = mapComponent.createObject(page);
-        map.activeMapType = map.supportedMapTypes[1]
-        //map.activeMapType = MapType.CustomMap 
+        map.activeMapType = map.supportedMapTypes[4] //1 //3 
         map.zoomLevel = (map.maximumZoomLevel - map.minimumZoomLevel)/2
         map.tilt = 0
     }
@@ -91,29 +87,31 @@ ApplicationWindow{
         id: controlButtons
     }
 
+    Button{
+        id:resetButton
+        anchors{
+            left:controlButtons.right
+            bottom: controlButtons.bottom
+            leftMargin: 5
+            // bottomMargin: 10
+        }
+        text:"Reset"
+        onClicked:{
+            planner.reset()
+            clearMap()
+        }
+}
+
     StatusBar{
         id:statBar
           anchors{
-              left:controlButtons.right
-              bottom: controlButtons.bottom
+              left:resetButton.right
+              bottom: resetButton.bottom
               leftMargin:5
          }    
     }
 
-    Button{
-    id:resetButton
-    anchors{
-        right:parent.right
-        bottom:parent.bottom
-        rightMargin: 5
-        bottomMargin: 10
-    }
-    text:"Reset"
-    onClicked:{
-        planner.reset()
-        clearMap()
-    }
-}
+
 
 
 }

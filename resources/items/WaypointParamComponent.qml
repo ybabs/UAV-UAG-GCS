@@ -2,7 +2,8 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-
+import QtPositioning 5.15
+import QtLocation 5.15
 Popup{
     id: singleModePopupMenu
     x: (parent.width - width) / 2
@@ -11,14 +12,16 @@ Popup{
     visible: false
     focus:true
     signal okButtonClicked
+    signal preconfigButtonClicked()
     property var waypoint
+    property var altitude: 5
+    property var sampleTime: 60
 
-
+// Used in MapComponent to pass waypoiint between resources
     function addWaypoint(coordinate)
     {
         singleModePopupMenu.waypoint = coordinate
     }
-
 
     ColumnLayout{
 
@@ -88,9 +91,26 @@ Popup{
                         //TODO //Clear Waypoints
                     }
                 }
+
+                Button{
+                    id:hardcodedPopupButton
+                    text:"Preconfig"
+                    onClicked:{
+                        for(var i = 0; i < preconfigModel.rowCount(); i++)
+                        {
+                            planner.addWaypoint(preconfigModel.get(i).latitude, preconfigModel.get(i).longitude,altitude, 1,sampleTime)
+                        }
+                            missionPopup.close();
+                    }
+                }
             }
         }
 
+    }
+
+// Hardcoded, Preloaded waypoints
+    PreconfigModel{
+        id:preconfigModel
     }
 
 

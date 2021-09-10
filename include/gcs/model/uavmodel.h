@@ -14,6 +14,7 @@
 // #include "gcs/planner/planner.h"
 
 
+#define SIM_MODE 1
 
 
 
@@ -42,6 +43,7 @@ public:
     void M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
     
+    void SetSimPositions();
     //void uav4gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     //void uav4batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
 

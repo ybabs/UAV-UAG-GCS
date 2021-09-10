@@ -15,6 +15,9 @@ Map{
     property variant scaleLengths: [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000]
     property var singleModeWaypoint
     property var pos
+    property bool isMapOnline : true
+    plugin:isMapOnline ? mapPlugin : osmPlugin
+
 
     // MTSP model for the multiple
     // UAV waypoints
@@ -71,16 +74,53 @@ Map{
     }
 
    
-    // plugin:Plugin{
-    // name:"esri"
-    // }
 
-    plugin:Plugin{
+    Plugin
+    {
+        id:esriPlugin
+        name:"mapboxgl"
+
+                    PluginParameter {
+                name: 'osm.mapping.cache.directory'                
+                value: '/home/rosboxone/map_cache/'
+            }
+
+            PluginParameter { 
+                name: "osm.mapping.host";
+                value: "http://tile.openstreetmap.org/" }
+    }
+
+        Plugin {
+        id: mapPlugin
+
+        name: "mapboxgl"
+            PluginParameter {
+            name: "mapboxgl.mapping.items.insert_before"
+            value: "road-label-small"
+            }
+            PluginParameter {
+            name: "mapboxgl.mapping.use_fbo"
+            value: "false"
+            }
+            PluginParameter {
+            name: "mapboxgl.access_token"
+            value: "pk.eyJ1IjoianBmbGFuYWdhbiIsImEiOiJjanJyZ3RpN3MxemIwNDVuMzVqdWJicmFmIn0.XTq-C08x005zKLDIoDzamw"
+            }
+            PluginParameter {
+            name: "Mapboxgl.mapping.cache.directory "
+            value:  "/home/rosboxone/map_cache/"
+            }
+    }
+
+
+
+    Plugin{
+        id:osmPlugin
         name:"osm"
 
         PluginParameter {
             name: 'osm.mapping.offline.directory'
-            value: 'offline_map/'
+            value: '/home/rosboxone/offline_map/'
         }
 
         PluginParameter {
@@ -90,17 +130,8 @@ Map{
 
                 PluginParameter {
                 name: 'osm.mapping.cache.directory'                
-                value: 'cache/'
+                value: '/home/rosboxone/map_cache/'
             }
-
-        PluginParameter { name: "osm.mapping.highdpi_tiles"; value: true }
-
-        PluginParameter {
-            name: "osm.mapping.providersrepository.address"
-            value: 'qrc:/qt-osm-map-providers/'
-        }
-
-
     }
 
     center {
@@ -291,12 +322,26 @@ Map{
         }
     }
 
+        MapItemView{
+        id:preconfigItemView
+        model:PreconfigModel{}
+        delegate: MapQuickItem{
+            coordinate: QtPositioning.coordinate(latitude, longitude)
+            anchorPoint.x: image.width * 0.28
+            anchorPoint.y: image.height
+
+            sourceItem: Image {
+                id:image
+                source: "../images/marker.png"
+            }
+        }
+    }
+
 
     WaypointParamComponent{
         id:missionPopup
 
         onOkButtonClicked:{
-
             markerModel.append({"position":pos})
            // uavPath.addCoordinate(pos)
             console.log(pos.latitude + ", " + pos.longitude)

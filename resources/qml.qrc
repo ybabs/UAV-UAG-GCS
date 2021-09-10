@@ -21,5 +21,6 @@
         <file>items/DiskCoverageComponent.qml</file>
         <file>items/MavCheckBox.qml</file>
         <file>items/MtspPopupComponent.qml</file>
+        <file>items/PreconfigModel.qml</file>
     </qresource>
 </RCC>
