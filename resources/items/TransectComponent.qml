@@ -7,8 +7,8 @@ Popup
 {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
-    height: 250
-    width: 250
+    height: 200
+    width: 230
     visible: false
     focus:true
 
@@ -84,22 +84,9 @@ Popup
             }
         }
 
-        TextField{
-            id:speedText
-            Layout.fillWidth: true
-            Behavior on opacity { NumberAnimation{} }
-            visible: opacity ? true : false
-            placeholderText: "Speed"
-            validator: IntValidator{bottom:1; top:15}
-            onAccepted: {
-                planner.droneSpeed = speedText.text
-                console.log(planner.droneSpeed + "m/s")
-            }
-        }
-
-
         Button{
             id: generateWpButton
+            Layout.fillWidth:true
             text:"Generate"
             onClicked:{
                 planner.addGeneratedWaypoints(searchText.text, endSearchText.text, waypointText.text)

@@ -27,6 +27,7 @@ void GCS::initPublishers()
   mission_pause_publisher = nh.advertise<std_msgs::UInt8>("gcs/mission_pause", 1);
   drone_action_publisher = nh.advertise<gcs::Action>("gcs/mission_action", 1);
   active_mav_publisher = nh.advertise<std_msgs::Int32MultiArray>("gcs/active_mavs", 10);
+ 
 
   ca_prio_subscriber = nh.subscribe("uav_agent/priority", 10, &GCS::PrioSubscriberCallback, this);
   n3_flight_status_subscriber = nh.subscribe("n3/flight_status", 10, &GCS::m100flightStatusCallback, this);
@@ -325,61 +326,6 @@ void GCS::uploadWaypoints()
   }
 }
 
-// void GCS::uploadWaypoints()
-// {
-//   armMav();
-//   std::vector<int> active_mav_copy; // copy contents of active UAVs.
-//   active_mav_copy = active_mavs;
-//   int active_key = 1;
-//   int index;
-
-//   int n = std::count(active_mav_copy.begin(), active_mav_copy.end(), 1); // number of active mavs
-
-//   if (n > 0)
-//   {
-
-//     std::vector<std::vector<gcs::Waypoint>> truncated_waypoints = splitTransectWaypoints(transect_list, n);
-//     int wp_size = truncated_waypoints.size();
-
-//     ROS_INFO("Number of active Waypoints %d", wp_size);
-//     ROS_INFO("Number of active drones %d", n);
-
-//     for (auto &row : truncated_waypoints)
-//     {
-//       // find first active index
-//       std::vector<int>::iterator it = std::find(active_mav_copy.begin(), active_mav_copy.end(), active_key);
-//       if (it != active_mav_copy.end())
-//       {
-//         index = std::distance(active_mav_copy.begin(), it);
-//         ROS_INFO("\nUAV %d activated", index + 1);
-//         active_mav_copy[index] = 0;
-//       }
-//       else
-//       {
-//         ROS_WARN("No active UAVs found");
-//       }
-//       for (auto &waypoint : row)
-//       {
-//         waypoint.id = index;
-//         waypoint_publisher.publish(waypoint);
-//         ROS_INFO("ID: %d, Lat: %f, Lon: %f", waypoint.id, waypoint.latitude, waypoint.longitude);
-//         ros::Duration(0.001).sleep();
-//       }
-//     }
-
-//     transect_list.clear();
-//     // for( auto &itr : active_mavs)
-//     //   {
-//     //     itr = 0;
-//     //   }
-//   }
-
-//   else
-//   {
-//     ROS_ERROR("No Drones active, Check");
-//   }
-// }
-
 void GCS::tspTour(std::vector<gcs::Waypoint> &tsp_wp)
 {
   std::vector<int> routeOrder;
@@ -517,7 +463,7 @@ void GCS::setMissionParams()
   gcs::Missionparameters msg;
   msg.header.stamp = ros::Time::now();
   // Run missions at a conservative
-  uav_speed = 15;
+  uav_speed = 5;
   msg.uavSpeed = uav_speed;
   // Force Mission to always RTH
   msg.missionEndAction = 2;
@@ -654,7 +600,7 @@ void GCS::addMTSPWaypoint(double lat, double lon, int sample, float sampleTime)
    msg.header.stamp = ros::Time::now();
    msg.latitude = lat;
    msg.longitude = lon;
-   msg.altitude = 10;  // fix the altitude here. Makes things easier for now
+   msg.altitude = 5;  // fix the altitude here. Makes things easier for now
    msg.sample = sample;
    msg.sampleTime = sampleTime;
    transect_list.push_back(msg);

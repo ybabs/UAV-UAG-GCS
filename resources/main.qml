@@ -25,7 +25,8 @@ ApplicationWindow{
         }        
         map = mapComponent.createObject(page);
         map.activeMapType = map.supportedMapTypes[4] //1 //3 
-        map.zoomLevel = (map.maximumZoomLevel - map.minimumZoomLevel)/2
+        // map.zoomLevel = (map.maximumZoomLevel - map.minimumZoomLevel)/2
+        map.zoomLevel = map.maximumZoomLevel
         map.tilt = 0
     }
 

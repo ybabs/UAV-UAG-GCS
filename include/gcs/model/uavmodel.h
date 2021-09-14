@@ -14,7 +14,7 @@
 // #include "gcs/planner/planner.h"
 
 
-#define SIM_MODE 1
+#define SIM_MODE 0
 
 
 

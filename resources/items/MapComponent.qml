@@ -135,8 +135,8 @@ Map{
     }
 
     center {
-        latitude:52.769862
-        longitude: -1.272527
+        latitude:52.73291
+        longitude: -1.25925
     }
     gesture.flickDeceleration: 3000
     gesture.enabled: true
