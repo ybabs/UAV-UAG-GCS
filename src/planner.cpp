@@ -463,7 +463,7 @@ void GCS::setMissionParams()
   gcs::Missionparameters msg;
   msg.header.stamp = ros::Time::now();
   // Run missions at a conservative
-  uav_speed = 5;
+  uav_speed = 2;
   msg.uavSpeed = uav_speed;
   // Force Mission to always RTH
   msg.missionEndAction = 2;

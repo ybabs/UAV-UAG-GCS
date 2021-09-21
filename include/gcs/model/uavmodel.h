@@ -9,6 +9,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/BatteryState.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/Joy.h>
 #include <QGeoCoordinate>
 #include <QVariantList>
 // #include "gcs/planner/planner.h"
@@ -42,6 +43,7 @@ public:
     void N3batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
     void M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
     void M100batteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
+    void N3rcCallback(const sensor_msgs::Joy::ConstPtr& msg);
     
     void SetSimPositions();
     //void uav4gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
@@ -69,6 +71,7 @@ private:
    // ros::Subscriber uav4_gps_subscriber;
     ros::Subscriber a3_battery_subscriber;
     ros::Subscriber a3_gps_subscriber;
+    ros::Subscriber n3_rc_subscriber;
 
 };
 

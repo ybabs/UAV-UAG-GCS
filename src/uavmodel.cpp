@@ -19,6 +19,7 @@ UavModel::UavModel(QObject *parent):
     n3_gps_subscriber = nh.subscribe("n3/gps_position", 10, &UavModel::N3gpsCallback, this);
     a3_battery_subscriber = nh.subscribe("a3/battery_state", 10, &UavModel::A3batteryStateCallback, this);
     a3_gps_subscriber = nh.subscribe("a3/gps_position", 10, &UavModel::A3gpsCallback, this);
+    n3_rc_subscriber = nh.subscribe("n3/rc", 10, &UavModel::N3rcCallback, this);
 
 
     connected_clients = 4;
@@ -104,6 +105,18 @@ void UavModel::A3gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 
 }
 
+void UavModel::N3rcCallback(const sensor_msgs::Joy::ConstPtr& msg)
+{
+    float throttle_channel = msg->axes[3];
+
+    if(throttle_channel != 0.0)
+    {
+        ROS_WARN("Throttle is not idle : %f", throttle_channel);
+    }
+
+    
+}
+
 void UavModel::M100gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
 
@@ -182,3 +195,4 @@ QHash<int, QByteArray> UavModel::roleNames() const
     return roles;
 
 }
+
