@@ -94,6 +94,7 @@ Popup
                 for(var i in planner.trackpoints){
                     var p = planner.trackpoints[i];
                    pointsList.append(p)
+                   console.log(p.latitude + "," + p.longitude)
                 }
 
                 waypointGenerated(pointsList) 
